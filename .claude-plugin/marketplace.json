@@ -1,0 +1,21 @@
+{
+  "name": "cowork-essentials-marketplace",
+  "owner": {
+    "name": "Ahmed (local install)"
+  },
+  "metadata": {
+    "description": "Local marketplace hosting the Cowork Essentials plugin (50 ready-to-use Claude Cowork skills).",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "cowork-essentials",
+      "source": "./cowork-essentials",
+      "description": "50 ready-to-use Claude Cowork skills — content, research, design, productivity, business, communication, and system tools. Works for any niche.",
+      "version": "2.0.0",
+      "author": {
+        "name": "Brock Mesarich — AI for Non-Techies"
+      }
+    }
+  ]
+}
