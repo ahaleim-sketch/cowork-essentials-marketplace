@@ -64,7 +64,7 @@ test.describe('lead form', () => {
   test('live mode posts multipart with payload and file, then shows success', async ({ page }) => {
     let req;
     await page.route('**/api/lead', async (r) => { req = r.request(); await new Promise((s) => setTimeout(s, 300)); r.fulfill({ json: { ok: true } }); });
-    await open(page, { formLive: true, minMsOnPage: 0 });
+    await open(page, { formLive: true, sendEstimateFile: true, minMsOnPage: 0 });
     await fillValid(page);
     await page.click('#c2-text');
     await page.setInputFiles('#up1', pdf());
@@ -81,6 +81,21 @@ test.describe('lead form', () => {
     expect(json.consent.callsTexts.granted).toBe(true);
     expect(json.consent.callsTexts.text).toContain('Reply STOP to opt out, HELP for help.');
     expect(json.pageUrl).not.toContain('?');
+  });
+
+  test('with sendEstimateFile off, the file stays in the browser', async ({ page }) => {
+    let req;
+    await page.route('**/api/lead', (r) => { req = r.request(); r.fulfill({ json: { ok: true } }); });
+    await open(page, { formLive: true, minMsOnPage: 0 });
+    await fillValid(page);
+    await page.setInputFiles('#up1', pdf());
+    await page.click('#go');
+    await expect(page.locator('#msg')).toHaveText('Thank you. An advisor will contact you.');
+    const body = req.postDataBuffer().toString('latin1');
+    expect(body).not.toContain('name="estimate"');
+    expect(body).not.toContain('%%%%');
+    expect(body).toContain('"hasEstimate":false');
+    expect(body).toContain('"estimateAttachedNotSent":true');
   });
 
   test('live mode failure shows the phone number', async ({ page }) => {
@@ -105,7 +120,7 @@ test.describe('lead form', () => {
   test('"Other state" shows the waitlist note, hides the upload and sends no file', async ({ page }) => {
     let req;
     await page.route('**/api/lead', (r) => { req = r.request(); r.fulfill({ json: { ok: true } }); });
-    await open(page, { formLive: true, minMsOnPage: 0 });
+    await open(page, { formLive: true, sendEstimateFile: true, minMsOnPage: 0 });
     await page.setInputFiles('#up1', pdf());
     await page.fill('#nm', 'Sam Doe');
     await page.fill('#em', 'sam@example.com');

@@ -53,6 +53,7 @@ function setLocked(locked) {
 }
 
 Object.values(FIELDS).forEach((id) => $(id).addEventListener('input', render));
+$('ws').addEventListener('submit', (e) => e.preventDefault());
 $('ws-reset').addEventListener('click', () => {
   clearFields();
   $('amt').focus();

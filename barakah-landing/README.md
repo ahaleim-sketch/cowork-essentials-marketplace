@@ -39,10 +39,8 @@ npm run screenshots -- ./screenshots
 
 ## Deploy
 
-The site is plain static files. Upload `public/` to any static host (Cloudflare Pages, Netlify, S3 + CloudFront, Replit static).
-- Cloudflare Pages: build command none, output directory `barakah-landing/public`.
-- Serve it over HTTPS on the final subdomain, and route `/api/lead` to the Worker from handover Prompt 3 once it is approved.
-- Turn on `formLive` and remove the `noindex` meta tag only after Compliance signs off.
+`worker/` is a Cloudflare Worker that serves this static site **and** `POST /api/lead` (GoHighLevel + private Loan Estimate storage). See `worker/README.md` for setup, secrets and launch switches.
+Turn on `formLive`, and remove `noindex` from `index.html` and `_headers`, only after Compliance signs off.
 
 ## Submit contract (what the Worker must accept)
 

@@ -59,6 +59,12 @@ window.BARAKAH_CONFIG = Object.freeze({
   formLive: false,
   leadEndpoint: '/api/lead',
 
+  // Send the attached Loan Estimate to the server. Must match the Worker's
+  // UPLOADS_ENABLED. Keep false until Compliance approves storage, retention
+  // and the privacy text. While false, the worksheet still works (the file
+  // is never read) and the lead is sent without the file.
+  sendEstimateFile: false,
+
   // Upload rules (client-side check only; the server must re-check).
   upload: {
     maxBytes: 10 * 1024 * 1024,

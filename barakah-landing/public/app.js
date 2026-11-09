@@ -129,6 +129,7 @@ function buildPayload(clean, raw, file) {
     language: clean.language,
     waitlist: clean.waitlist,
     hasEstimate: Boolean(file),
+    estimateAttachedNotSent: Boolean(!file && getFile()),
     noEstimateClicked,
     consent: {
       email: { granted: raw.consentEmail, text: $('c1-text').textContent.trim() },
@@ -163,7 +164,7 @@ async function onSubmit(e) {
   }
 
   // "Other state" never sends a document.
-  const file = clean.waitlist ? null : getFile();
+  const file = clean.waitlist || !cfg.sendEstimateFile ? null : getFile();
 
   if (!cfg.formLive) {
     status(

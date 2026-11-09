@@ -1,0 +1,12 @@
+# Copy to .dev.vars for `wrangler dev` and `npm run ghl:check`. Never commit .dev.vars.
+GHL_TOKEN=pit-xxxxxxxxxxxxxxxxxxxxxxxx
+GHL_LOCATION_ID=
+GHL_PIPELINE_ID=
+GHL_STAGE_ID=
+ESTIMATE_LINK_SECRET=generate-with-openssl-rand-base64-32
+GHL_CF_LANGUAGE=
+GHL_CF_CONSENT_EMAIL=
+GHL_CF_CONSENT_CALLS=
+GHL_CF_ATTRIBUTION=
+ALLOWED_ORIGINS=http://localhost:8787
+UPLOADS_ENABLED=false

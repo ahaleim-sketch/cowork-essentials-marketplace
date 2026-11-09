@@ -1,0 +1,35 @@
+# Barakah landing page: static site + POST /api/lead on one Cloudflare Worker.
+name = "barakah-lead"
+main = "src/index.ts"
+compatibility_date = "2025-09-01"
+
+# The static page in ../public is served directly; /api/* always reaches the Worker.
+[assets]
+directory = "../public"
+binding = "ASSETS"
+run_worker_first = ["/api/*"]
+
+# Private bucket for uploaded Loan Estimates. Never bind a public domain to it.
+# R2 encrypts objects at rest. Add the retention rule once (see README):
+#   npx wrangler r2 bucket lifecycle add barakah-loan-estimates le-expire le/ --expire-days 30
+[[r2_buckets]]
+binding = "ESTIMATES"
+bucket_name = "barakah-loan-estimates"
+
+# 5 submissions per IP per minute.
+[[ratelimits]]
+name = "LEAD_LIMITER"
+namespace_id = "1001"
+simple = { limit = 5, period = 60 }
+
+[vars]
+# TODO(confirm): the final landing-page origin(s), comma-separated.
+ALLOWED_ORIGINS = "https://TODO-confirm-subdomain.example"
+ESTIMATE_LINK_TTL_HOURS = "72"
+ESTIMATE_RETENTION_DAYS = "30"
+# Keep "false" until Compliance approves storing Loan Estimates and the privacy text.
+UPLOADS_ENABLED = "false"
+
+# Secrets (set with `npx wrangler secret put NAME`, never committed):
+#   GHL_TOKEN, GHL_LOCATION_ID, GHL_PIPELINE_ID, GHL_STAGE_ID, ESTIMATE_LINK_SECRET,
+#   GHL_CF_LANGUAGE, GHL_CF_CONSENT_EMAIL, GHL_CF_CONSENT_CALLS, GHL_CF_ATTRIBUTION
