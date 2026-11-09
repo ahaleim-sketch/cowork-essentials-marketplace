@@ -70,6 +70,8 @@
 <div class="f"><label for="lg">Language</label><select id="lg" name="language"><option>English</option><option>Arabic</option><option>Urdu</option><option>Other</option></select></div>
 
 <div id="upwrap">
+  <!-- Shown only when uploads are on (config sendEstimateFile). Wording pending Compliance approval. -->
+  <p class="upintro" id="upintro" hidden><b>Get your estimate reviewed before we call.</b> Upload your Loan Estimate and an advisor will review it before calling you, so the call starts with your numbers and a side-by-side.</p>
   <label class="drop" for="up1" id="d1"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 3h11l6 6v20H8z"/><path d="M19 3v6h6M16 14v9M12.5 17.5 16 14l3.5 3.5"/></svg><div><b>Attach your Loan Estimate</b><span data-upload-note="hero">Optional</span></div><input type="file" id="up1" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif,application/pdf,image/jpeg,image/png,image/heic,image/heif" aria-describedby="up1-err"></label>
   <div class="filerow" data-file-row hidden><span class="file" data-file-name></span><button type="button" class="rm" data-file-remove>Remove<span class="sr-only"> attached file</span></button></div>
   <p class="err" id="up1-err"></p>

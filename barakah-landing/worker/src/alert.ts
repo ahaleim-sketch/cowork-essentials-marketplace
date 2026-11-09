@@ -11,7 +11,9 @@ const PROGRAM_NAME: Record<string, string> = {
 
 export function buildAlert(id: string, lead: Lead, at: string, estimate: { link: string; ttlHours: number } | null) {
   const goal = lead.goal === 'buy' ? 'Buy a home' : 'Refinance';
-  const subject = lead.waitlist ? `Barakah waitlist request (other state)` : `New Barakah lead: ${goal} (${lead.state})`;
+  const subject = lead.waitlist
+    ? `Barakah waitlist request (other state)`
+    : `New Barakah lead: ${goal} (${lead.state})${estimate ? ', Loan Estimate attached' : ''}`;
   // A consent only counts if the person saw the approved wording.
   const ok = (c: Lead['consent']['email']) => c.granted && c.textMatchesServer;
   const consent = (c: Lead['consent']['email']) =>
@@ -26,6 +28,14 @@ export function buildAlert(id: string, lead: Lead, at: string, estimate: { link:
 
   const text = [
     lead.waitlist ? 'Waitlist request. Barakah is not offered in their state yet.' : 'A new request came in from the Barakah landing page.',
+    ...(estimate
+      ? [
+          '',
+          'BEFORE YOU CALL: open their Loan Estimate (link below) and prepare a side-by-side.',
+          'They were told an advisor would review it before calling. Compare on their actual numbers;',
+          'only tell them they would pay less if your quote for their file shows it.'
+        ]
+      : []),
     '',
     `Name:      ${[lead.firstName, lead.lastName].filter(Boolean).join(' ')}`,
     `Phone:     ${lead.phone ?? '(none)'}`,

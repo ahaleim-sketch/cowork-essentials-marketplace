@@ -153,6 +153,21 @@ test.describe('lead form', () => {
     await expect(p2.locator('[data-upload-note="hero"]')).toContainText('goes securely to your advisor only and is deleted after 30 days');
   });
 
+  test('uploads on: review-before-the-call offer leads a prominent upload box', async ({ page }) => {
+    await open(page);
+    await expect(page.locator('#upintro')).toBeHidden();
+    await expect(page.locator('#d1')).not.toHaveClass(/feature/);
+    const p2 = await page.context().newPage();
+    await open(p2, { sendEstimateFile: true });
+    await expect(p2.locator('#upintro')).toBeVisible();
+    await expect(p2.locator('#upintro')).toContainText('an advisor will review it before calling you');
+    await expect(p2.locator('#upintro')).not.toContainText(/save|less|lower|cheaper/i);
+    await expect(p2.locator('#d1')).toHaveClass(/feature/);
+    await expect(p2.locator('#d1 b')).toHaveText('Upload your Loan Estimate');
+    await p2.selectOption('#st', 'OTHER');
+    await expect(p2.locator('#upintro')).toBeHidden();
+  });
+
   test('kept estimate: success message asks them to have it ready', async ({ page }) => {
     await page.route('**/api/lead', (r) => r.fulfill({ json: { ok: true } }));
     await open(page, { formLive: true, minMsOnPage: 0 });

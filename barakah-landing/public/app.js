@@ -38,6 +38,10 @@ function bindConfig() {
   const hero = document.querySelector('[data-upload-note="hero"]');
   const ws = document.querySelector('[data-upload-note="ws"]');
   if (hero) hero.textContent = 'Optional. ' + (cfg.sendEstimateFile ? sent : kept);
+  // With uploads on, the review-before-the-call offer leads the upload box.
+  $('upintro').hidden = !cfg.sendEstimateFile;
+  $('d1').classList.toggle('feature', Boolean(cfg.sendEstimateFile));
+  if (cfg.sendEstimateFile) $('d1').querySelector('b').textContent = 'Upload your Loan Estimate';
   if (ws) ws.textContent = 'PDF, photo or screenshot. ' + (cfg.sendEstimateFile ? 'It is sent only if you also send the form above.' : kept);
 
   const states = document.querySelector('[data-cfg-states]');

@@ -96,6 +96,19 @@ async function buildPdf(browser, port) {
     return p.locator('.sheet').screenshot({ type: 'jpeg', quality: 85 });
   });
 
+  // The form with uploads switched on (proposed), shown in the request section.
+  {
+    const p = await browser.newPage({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 2 });
+    await p.addInitScript(() => {
+      let real;
+      Object.defineProperty(window, 'BARAKAH_CONFIG', { configurable: true, get: () => real, set: (v) => { real = Object.freeze({ ...v, sendEstimateFile: true }); } });
+    });
+    await p.goto(`http://localhost:${port}/`, { waitUntil: 'networkidle' });
+    await p.evaluate(() => document.fonts.ready);
+    shots.uploadsOn = 'data:image/jpeg;base64,' + (await p.locator('.sheet').screenshot({ type: 'jpeg', quality: 85 })).toString('base64');
+    await p.close();
+  }
+
   const img = (d, alt, cls = '') => `<img class="${cls}" src="${d.startsWith('data:') ? d : 'data:image/jpeg;base64,' + d}" alt="${alt}">`;
   let review = readFileSync(root + 'docs/review/review.html', 'utf8');
   // Replace the on-screen tab viewer with print-friendly figures.
@@ -114,12 +127,13 @@ async function buildPdf(browser, port) {
     .replace(/<section aria-labelledby="h-draft">[\s\S]*?<\/section>\s*/, '')
     .replace(/<script>[\s\S]*?<\/script>/, '')
     .replace('</main>', draft + '\n</main>')
+    .replace('src="img/uploads-on.jpg"', `src="${shots.uploadsOn}"`)
     .replace('<p class="lead">Ordered by severity.', '<p class="lead">Screenshots of the draft page are in the appendix at the end. Ordered by severity.');
   review = review.replace('<main class="w">', '<main class="w">').replace(
     '</style>',
     `.fig-h{font-size:1.05rem;margin:18px 0 8px}.shot{display:block;width:100%;border:1px solid var(--line);margin-bottom:6px;break-inside:avoid}
 .phone-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.pair{display:grid;grid-template-columns:1fr 1fr;gap:16px}.pair figure{margin:0}
-@media print{.page-break{break-before:page}.item,.passes article,.fixed div,tr{break-inside:avoid}.mast{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+@media print{.page-break{break-before:page}.req-grid{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)}.req-shot{position:static}blockquote,.req li{break-inside:avoid}.item,.passes article,.fixed div,tr{break-inside:avoid}.mast{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .tbl{overflow:visible}table{min-width:0}.note{break-inside:avoid}}
 </style>`
   );

@@ -91,6 +91,17 @@ td.r{font-variant-numeric:tabular-nums;white-space:nowrap}
 .frame.phone img{max-width:390px;margin:0 auto}
 .frame.small img{max-width:500px;margin:0 auto}
 .cap{color:var(--mute);font-size:.85rem;margin-top:8px}
+.req{margin-top:28px;padding:22px max(18px,2.5vw) 26px;background:var(--surface);border:1px solid var(--line);border-top:5px solid var(--gold);border-radius:8px}
+.eyebrow-dark{font:700 .72rem var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.req h2{margin-top:6px}.req h3{font-size:1.05rem;margin-top:20px}
+.req-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:28px;margin-top:6px;align-items:start}
+.ticks,.plain-list{margin:8px 0 0;padding-left:1.2em;font-size:.94rem;display:grid;gap:6px}
+.quote-label{font:700 .75rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin-top:12px}
+blockquote{margin:4px 0 0;padding:10px 14px;border-left:3px solid var(--gold);background:var(--bg);border-radius:0 6px 6px 0;font-size:.94rem}
+.plain{font-size:.94rem;margin-top:6px}
+.req-shot{margin:0;position:sticky;top:12px}.req-shot img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:8px}
+.req-shot figcaption{color:var(--mute);font-size:.82rem;margin-top:6px}
+@media (max-width:760px){.req-grid{grid-template-columns:1fr}.req-shot{position:static;max-width:360px}}
 .note{margin-top:40px;padding:16px 18px;border:1px dashed var(--line);border-radius:6px;color:var(--mute);font-size:.9rem}
 
 @media (max-width:640px){
@@ -116,6 +127,43 @@ td.r{font-variant-numeric:tabular-nums;white-space:nowrap}
 </div></header>
 
 <main class="w">
+
+<section aria-labelledby="h-req" class="req">
+  <p class="eyebrow-dark">Request</p>
+  <h2 id="h-req">Approve Loan Estimate uploads first</h2>
+  <p class="lead">This is the core of the page: a visitor uploads their current Loan Estimate, and the advisor reviews it before calling, so the conversation starts from their actual numbers. It is built and tested, and switched off until you approve it. Approving it settles items 5 and 6 below for uploads.</p>
+  <div class="req-grid">
+    <div>
+      <h3>What turning it on does</h3>
+      <ul class="ticks">
+        <li>The file goes only to private storage in Everett&rsquo;s Cloudflare account. It is encrypted, stored under a random name with no personal details, and never public.</li>
+        <li>Only PDF, JPG, PNG or HEIC files of 10&nbsp;MB or less are accepted. Files are checked by content, not by name.</li>
+        <li>The advisor gets an email with the visitor&rsquo;s details and a private link to the file that expires after 72 hours. The file is never attached to an email.</li>
+        <li>The file is deleted automatically after 30 days.</li>
+        <li>It is never sent to a CRM, an AI service or any other third party, and nothing reads it automatically.</li>
+      </ul>
+      <h3>Wording to approve</h3>
+      <p class="quote-label">Above the upload box</p>
+      <blockquote><b>Get your estimate reviewed before we call.</b> Upload your Loan Estimate and an advisor will review it before calling you, so the call starts with your numbers and a side-by-side.</blockquote>
+      <p class="quote-label">Inside the upload box</p>
+      <blockquote>Optional. If you send the form, it goes securely to your advisor only and is deleted after 30 days.</blockquote>
+      <p class="quote-label">Advisor email (internal)</p>
+      <blockquote>BEFORE YOU CALL: open their Loan Estimate (link below) and prepare a side-by-side. They were told an advisor would review it before calling. Compare on their actual numbers; only tell them they would pay less if your quote for their file shows it.</blockquote>
+      <h3>What the page does not say</h3>
+      <p class="plain">No savings, &ldquo;costs less&rdquo; or approval claim appears on the page. Whether Barakah would cost the visitor less is discussed only on the call, based on that visitor&rsquo;s own Loan Estimate and a real quote.</p>
+      <h3>Needed to switch it on</h3>
+      <ol class="plain-list">
+        <li>Approval of the storage, the 30-day deletion and the advisor email (item 6), with an Everett-managed inbox for alerts.</li>
+        <li>Approval of the three pieces of wording above.</li>
+        <li>A Privacy Policy that covers uploaded documents (item 5).</li>
+      </ol>
+    </div>
+    <figure class="req-shot">
+      <img src="img/uploads-on.jpg" width="992" height="2558" alt="The advisor form with uploads switched on: a light blue box reading Get your estimate reviewed before we call, above a green-bordered Upload your Loan Estimate box with the note that the file goes securely to the advisor only and is deleted after 30 days.">
+      <figcaption>The form with uploads on (proposed). Today the upload box says the file stays on the visitor&rsquo;s device.</figcaption>
+    </figure>
+  </div>
+</section>
 
 <section aria-labelledby="h-draft">
   <h2 id="h-draft">The draft page</h2>

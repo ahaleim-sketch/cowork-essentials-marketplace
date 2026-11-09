@@ -202,6 +202,20 @@ describe('Loan Estimate upload', () => {
     vi.useRealTimers();
   });
 
+  it('subject says a Loan Estimate is attached; body asks the advisor to review it before calling', async () => {
+    const { env } = makeEnv();
+    const mail = fakeMail();
+    await handle(leadRequest(payload(), { file: new Blob([PDF]) }), env, { sendEmail: mail.sendEmail });
+    expect(mail.sent[0].subject).toBe('New Barakah lead: Buy a home (TX), Loan Estimate attached');
+    expect(mail.sent[0].text).toContain('BEFORE YOU CALL: open their Loan Estimate');
+    expect(mail.sent[0].text).toContain('only tell them they would pay less if your quote for their file shows it');
+
+    const noFile = fakeMail();
+    await handle(leadRequest(payload()), env, { sendEmail: noFile.sendEmail });
+    expect(noFile.sent[0].subject).toBe('New Barakah lead: Buy a home (TX)');
+    expect(noFile.sent[0].text).not.toContain('BEFORE YOU CALL');
+  });
+
   it('refuses a file older than the retention period even with a fresh link', async () => {
     const { env, bucket } = makeEnv({ ESTIMATE_RETENTION_DAYS: '30', ESTIMATE_LINK_TTL_HOURS: '100000' });
     const mail = fakeMail();

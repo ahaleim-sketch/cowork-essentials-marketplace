@@ -244,3 +244,11 @@ footer a{color:inherit}
 .fs+.fs{margin-top:16px}.fs>legend.lab{margin-top:0}
 .legal{margin-top:14px}.legal a,.cons+.legal a{color:var(--mute);text-decoration:underline;text-underline-offset:2px}
 .cons label[hidden]{display:none}
+
+/* Uploads on: the review-before-the-call offer and a more prominent dropzone */
+.upintro{margin:18px 0 8px;padding:12px 14px;border-radius:10px;background:color-mix(in srgb,var(--sky) 45%,var(--surface));color:var(--fg);font-size:.92rem;line-height:1.5}
+.upintro b{display:block;font-size:1rem;margin-bottom:2px}
+.drop.feature{border-style:solid;border-width:2px;background:color-mix(in srgb,var(--grass) 7%,var(--surface));padding:18px 14px}
+.drop.feature b{font-size:1.05rem}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .upintro{background:color-mix(in srgb,var(--sky) 14%,var(--surface))}}
+:root[data-theme="dark"] .upintro{background:color-mix(in srgb,var(--sky) 14%,var(--surface))}
