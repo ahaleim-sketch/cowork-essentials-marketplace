@@ -1,0 +1,256 @@
+<title>Barakah Second Look</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=Public+Sans:wght@400;600;700&display=swap">
+<style>
+/* Layout: green hero with the request sheet as a paper-like panel; the form reads like a printed intake sheet with underlined fields. */
+:root{--bg:#f7f4ec;--surface:#fffdf8;--fg:#14231c;--mute:#51635a;--accent:#8a6a1c;--accent-fg:#ffffff;--line:#dcd6c4;--band:#0b4a36;--band-fg:#f4f1e6;--gold:#e0bd6a;--btn:#0b4a36;--btn-fg:#f4f1e6;
+--disp:'Newsreader',Georgia,serif;--body:'Public Sans',system-ui,sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1a15;--surface:#15261f;--fg:#eef3ee;--mute:#a6b8ac;--accent:#d3ad5c;--accent-fg:#10201a;--line:#2b4a3c;--band:#0d3a2b;--band-fg:#f1f5ef;--btn:#d3ad5c;--btn-fg:#10201a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1a15;--surface:#15261f;--fg:#eef3ee;--mute:#a6b8ac;--accent:#d3ad5c;--accent-fg:#10201a;--line:#2b4a3c;--band:#0d3a2b;--band-fg:#f1f5ef;--btn:#d3ad5c;--btn-fg:#10201a;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.6 var(--body)}
+.w{max-width:1060px;margin:0 auto;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--disp);line-height:1.1;text-wrap:balance;margin:0;font-weight:600}
+h1{font-size:clamp(2.3rem,6.4vw,4rem);letter-spacing:-.015em}h2{font-size:clamp(1.5rem,3.6vw,2.2rem)}h3{font-size:1.2rem}
+p{margin:0}
+.hero{background:var(--band);color:var(--band-fg);padding-block:22px 64px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding-bottom:40px}
+.brand{font-family:var(--disp);font-weight:700;font-size:1.3rem}.brand small{display:block;font:600 .68rem var(--body);letter-spacing:.14em;color:var(--gold)}
+.ph{font-weight:600;user-select:all}
+.hg{display:grid;grid-template-columns:1fr minmax(0,31rem);gap:56px;align-items:start}.hg>*{min-width:0}
+.lede{font-size:1.15rem;opacity:.9;margin-top:20px;max-width:30em}
+.facts{margin:34px 0 0;padding:0;list-style:none;max-width:26em}
+.facts li{padding:12px 0;border-top:1px solid rgba(244,241,230,.28);font-size:.98rem}
+.facts li:last-child{border-bottom:1px solid rgba(244,241,230,.28)}
+.facts b{font-family:var(--disp);font-size:1.12rem;font-weight:600;display:block}
+.facts span{opacity:.75;font-size:.9rem}
+/* the sheet */
+.sheet{background:var(--surface);color:var(--fg);border-radius:6px;padding:30px 30px 26px;border-top:5px solid var(--gold);box-shadow:0 18px 40px -22px rgba(0,0,0,.55)}
+.sheet h2{font-size:1.65rem}
+.sheet .sub{color:var(--mute);font-size:.94rem;margin:6px 0 4px}
+.grp{margin-top:26px}
+.grp>h3{font:700 .86rem var(--body);color:var(--accent);margin-bottom:12px;letter-spacing:.02em}
+.f{margin-bottom:16px}
+.f label,.lab{display:block;font-size:.84rem;font-weight:600;margin-bottom:2px;color:var(--mute)}
+.f input[type=text],.f input[type=email],.f input[type=tel],.f select{width:100%;font:inherit;font-size:1.02rem;padding:7px 0 8px;border:0;border-bottom:1.5px solid var(--line);border-radius:0;background:transparent;color:var(--fg)}
+.f input:focus,.f select:focus{outline:0;border-bottom-color:var(--accent);box-shadow:0 1.5px 0 var(--accent)}
+.f select{appearance:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2351635a' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat right 2px center}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:0 22px}.two>*{min-width:0}
+.seg{display:grid;grid-template-columns:1fr 1fr;border:1.5px solid var(--fg);border-radius:4px;overflow:hidden}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg label{margin:0;padding:11px 8px;text-align:center;font-weight:600;font-size:.97rem;color:var(--fg);cursor:pointer}
+.seg input:checked+label{background:var(--fg);color:var(--surface)}
+.seg label+input+label{border-left:1.5px solid var(--fg)}
+.seg input:focus-visible+label{outline:3px solid var(--accent);outline-offset:-3px}
+.opts{border-top:1px solid var(--line)}
+.opt{display:grid;grid-template-columns:22px 1fr;gap:12px;padding:12px 2px;border-bottom:1px solid var(--line);cursor:pointer;margin:0;color:var(--fg)}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt i{width:20px;height:20px;border:1.5px solid var(--mute);border-radius:3px;margin-top:2px;display:grid;place-items:center}
+.opt input:checked+i{background:var(--fg);border-color:var(--fg)}
+.opt input:checked+i::after{content:"";width:10px;height:5px;border-left:2px solid var(--surface);border-bottom:2px solid var(--surface);transform:rotate(-45deg) translate(1px,-1px)}
+.opt input:focus-visible+i{outline:3px solid var(--accent);outline-offset:2px}
+.opt b{display:block;font-size:1rem;font-weight:600;line-height:1.3}
+.opt span{display:block;font-size:.86rem;color:var(--mute);font-weight:400;line-height:1.4;margin-top:1px}
+.drop{display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:center;border:1.5px dashed var(--mute);border-radius:4px;padding:14px;cursor:pointer;margin:0;position:relative;color:var(--fg)}
+.drop svg{width:30px;height:30px;stroke:var(--accent);fill:none;stroke-width:1.6}
+.drop b{display:block;font-size:.98rem;font-weight:600}.drop span{display:block;font-size:.84rem;color:var(--mute);font-weight:400}
+.drop input{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px}
+.drop:hover,.drop.on{border-color:var(--accent);border-style:solid}
+.drop:focus-within{outline:3px solid var(--accent);outline-offset:2px}
+.file{margin-top:8px;font-size:.88rem;font-weight:600;color:var(--accent);word-break:break-all}
+.cons{display:grid;gap:12px}
+.cons label{display:grid;grid-template-columns:22px 1fr;gap:12px;margin:0;font-weight:400;font-size:.8rem;line-height:1.5;color:var(--mute);cursor:pointer}
+.cons input{position:absolute;opacity:0;pointer-events:none}
+.cons i{width:18px;height:18px;border:1.5px solid var(--mute);border-radius:3px;margin-top:2px;display:grid;place-items:center}
+.cons input:checked+i{background:var(--fg);border-color:var(--fg)}
+.cons input:checked+i::after{content:"";width:9px;height:4px;border-left:2px solid var(--surface);border-bottom:2px solid var(--surface);transform:rotate(-45deg) translate(1px,-1px)}
+.cons input:focus-visible+i{outline:3px solid var(--accent);outline-offset:2px}
+.cta{display:block;width:100%;margin-top:24px;background:var(--btn);color:var(--btn-fg);border:0;border-radius:4px;padding:16px;font:700 1.05rem var(--body);cursor:pointer}
+.cta:hover{filter:brightness(1.08)}
+.cta:focus-visible,a:focus-visible,summary:focus-visible,.f input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.msg{margin-top:12px;font-size:.88rem;color:var(--mute)}
+.alt{margin-top:14px;font-size:.9rem;color:var(--mute);text-align:center}
+.fine{font-size:.77rem;color:var(--mute);margin-top:12px}
+/* rest of page */
+.sec{padding-block:60px}
+.progs{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:26px;border-top:2px solid var(--fg)}.progs>*{min-width:0}
+.prog{padding:22px 24px 22px 0}
+.prog+.prog{padding-left:24px;border-left:1px solid var(--line)}
+.prog p{color:var(--mute);margin-top:8px;font-size:.97rem}
+.prog a,.link{color:var(--accent);font-weight:700;display:inline-block;margin-top:12px}
+.vals{display:grid;grid-template-columns:repeat(3,1fr);gap:28px 30px;margin-top:24px}.vals>*{min-width:0}
+.vals h3{font-size:1.1rem}.vals p{color:var(--mute);margin-top:6px;font-size:.96rem}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:44px;margin-top:22px}.grid2>*{min-width:0}
+.fo{background:var(--surface);border-radius:6px;padding:26px;border-top:5px solid var(--gold)}
+.out{margin-top:14px;border-top:1px dashed var(--line);padding-top:12px;display:grid;gap:8px}
+.m{display:flex;justify-content:space-between;gap:10px;font-size:.94rem}.m b{font-variant-numeric:tabular-nums}
+.qs{margin:6px 0 0;padding-left:1.1em;font-size:.92rem;color:var(--mute)}
+details{border-top:1px solid var(--line);padding-block:14px}summary{cursor:pointer;font-weight:600}details p{color:var(--mute);margin-top:8px}
+.band{background:var(--band);color:var(--band-fg);border-radius:6px;padding:34px max(20px,3vw);margin-top:36px}
+.contact{display:flex;gap:24px;flex-wrap:wrap;margin-top:16px}.contact span{user-select:all}.contact a{color:inherit;font-weight:700}
+footer{border-top:1px solid var(--line);padding-block:30px 60px;font-size:.77rem;color:var(--mute)}footer p+p{margin-top:8px}
+@media(max-width:900px){.hg,.vals,.grid2{grid-template-columns:1fr}.hg{gap:34px}.progs{grid-template-columns:1fr}.prog,.prog+.prog{padding:20px 0;border-left:0}.prog+.prog{border-top:1px solid var(--line)}.top{padding-bottom:26px}}
+@media(max-width:480px){.sheet{padding:24px 18px 22px}.two{grid-template-columns:1fr}}
+
+/* v6-style form look, with color */
+:root{--sky:#bfe3f4;--sun:#ffd45e;--coral:#d6402f;--grass:#3f9a3f;--cta:#f0b429;--cta-fg:#12281f}
+.hero{background:linear-gradient(180deg,var(--band) 0%,#0e5a41 100%)}
+.art{display:block;width:100%;max-width:470px;height:auto;margin-top:26px}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0 0;padding:0;list-style:none}
+.pills li{border-radius:99px;padding:6px 14px;font-weight:700;font-size:.9rem;color:#10281f}
+.pills .c1{background:#ffd45e}.pills .c2{background:#bfe3f4}.pills .c3{background:#9fe0a0}
+.lede{font-size:1.3rem;max-width:22em}
+.sheet{border-radius:18px;border-top:0;padding:26px;box-shadow:0 20px 44px -20px rgba(0,0,0,.6)}
+.sheet h2{font-size:1.7rem;margin-bottom:16px}
+.lab{display:block;font-size:.84rem;font-weight:700;margin:16px 0 8px;color:var(--mute)}
+.f label{color:var(--mute);margin-bottom:5px}
+.f input[type=text],.f input[type=email],.f input[type=tel],.f select{padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);font-size:1rem;box-shadow:none}
+.f input:focus,.f select:focus{border-color:var(--grass);box-shadow:0 0 0 3px rgba(63,154,63,.25)}
+.f select{background-position:right 12px center}
+.f{margin-bottom:12px}.two{gap:0 12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips input{position:absolute;opacity:0;pointer-events:none}
+.chips label{margin:0;font-weight:700;font-size:.92rem;border:1.5px solid var(--line);border-radius:10px;padding:10px 14px;cursor:pointer;background:var(--bg);color:var(--fg)}
+.chips.two2{display:grid;grid-template-columns:1fr 1fr}.chips.two2 label{text-align:center;padding:13px 8px;font-size:1rem}
+.chips input:checked+label{background:#0b4a36;border-color:#0b4a36;color:#fff}
+.chips input:focus-visible+label{outline:3px solid var(--accent);outline-offset:2px}
+.drop{margin-top:6px;border-color:var(--grass)}.drop svg{stroke:var(--grass)}
+.drop:hover,.drop.on{border-color:var(--grass);background:rgba(63,154,63,.08)}
+.cons{margin-top:16px}
+.cta{margin-top:20px;background:var(--cta);color:var(--cta-fg);font-size:1.3rem;font-weight:800;padding:22px 16px;border-radius:14px;box-shadow:0 6px 0 #b98312;transition:transform .12s,box-shadow .12s}
+.cta:hover{filter:none;transform:translateY(2px);box-shadow:0 4px 0 #b98312}
+.cta:active{transform:translateY(5px);box-shadow:0 1px 0 #b98312}
+.prog{background:var(--surface)}
+.progs{gap:16px;border-top:0}.prog,.prog+.prog{border:1px solid var(--line);border-radius:14px;padding:22px}
+.prog:nth-child(1){border-top:5px solid #3f9a3f}.prog:nth-child(2){border-top:5px solid #e0a82e}.prog:nth-child(3){border-top:5px solid #4aa3d6}
+.fo{border-top:5px solid var(--cta);border-radius:14px}
+@media(max-width:900px){.progs{grid-template-columns:1fr}}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .chips input:checked+label{background:#d3ad5c;border-color:#d3ad5c;color:#10201a}}
+:root[data-theme="dark"] .chips input:checked+label{background:#d3ad5c;border-color:#d3ad5c;color:#10201a}
+.art.photo{border-radius:14px;box-shadow:0 14px 30px -16px rgba(0,0,0,.6)}
+.noest{margin-top:10px;font-size:.95rem;font-weight:600;color:var(--fg)}.noest a{color:var(--grass);text-decoration:underline;text-underline-offset:3px}
+.art.photo{border-radius:0;box-shadow:none;max-width:520px;margin-top:10px;
+-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 22%,#000 72%,transparent 100%),linear-gradient(to right,transparent 0,#000 16%,#000 84%,transparent 100%);
+-webkit-mask-composite:source-in;mask-image:linear-gradient(to bottom,transparent 0,#000 22%,#000 72%,transparent 100%),linear-gradient(to right,transparent 0,#000 16%,#000 84%,transparent 100%);mask-composite:intersect}
+</style>
+
+<header class="hero"><div class="w">
+<div class="top"><div class="brand">Barakah Mortgage<small>ISLAMIC HOME FINANCING</small></div><div class="ph">1-833-786-7099</div></div>
+<div class="hg">
+<div>
+<h1>Your faith, your home, your values.</h1>
+<p class="lede">Send us your current estimate. We show you the riba-free way.</p>
+<ul class="pills"><li class="c1">Riba-free</li><li class="c2">Sharia board</li><li class="c3">Open to all</li></ul>
+<img class="art photo" alt="A new home with a SOLD sign on the lawn and a hand holding the keys" width="520" height="392" src="DATAURI">
+</div>
+<div class="sheet" id="start">
+<h2>Talk to an advisor</h2>
+<form id="lead" onsubmit="return false" novalidate>
+<div class="chips two2">
+<input type="radio" name="goal" id="g1" value="buy" checked><label for="g1">Buy a home</label>
+<input type="radio" name="goal" id="g2" value="refi"><label for="g2">Refinance</label></div>
+<span class="lab">Programs</span>
+<div class="chips">
+<input type="checkbox" id="p1"><label for="p1">Cost plus Profit (Murabaha)</label>
+<input type="checkbox" id="p2"><label for="p2">Diminishing Partnership (Musharakah)</label>
+<input type="checkbox" id="p3"><label for="p3">Home Earned Equity (Ijara)</label>
+<input type="checkbox" id="p4" checked><label for="p4">Not sure yet</label></div>
+<div class="two" style="margin-top:16px"><div class="f"><label for="nm">Full name</label><input type="text" id="nm" autocomplete="name"></div><div class="f"><label for="ph">Phone</label><input type="tel" id="ph" autocomplete="tel"></div></div>
+<div class="two"><div class="f"><label for="em">Email</label><input type="email" id="em" autocomplete="email"></div><div class="f"><label for="st">State</label><input type="text" id="st" autocomplete="address-level1"></div></div>
+<div class="f"><label for="lg">Language</label><select id="lg"><option>English</option><option>Arabic</option><option>Urdu</option><option>Other</option></select></div>
+<label class="drop" for="up1" id="d1"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 3h11l6 6v20H8z"/><path d="M19 3v6h6M16 14v9M12.5 17.5 16 14l3.5 3.5"/></svg><div><b>Attach your Loan Estimate</b><span>Optional</span></div><input type="file" id="up1" accept=".pdf,image/*"></label>
+<div class="file" id="f1"></div>
+<p class="noest">No estimate yet? <a href="#start" id="noest">Let us show you what you qualify for.</a></p>
+<div class="cons">
+<label><input type="checkbox" id="c1"><i></i><span>I agree to receive marketing emails about home financing from Everett Financial, Inc. D/B/A Supreme Lending (NMLS #2129). I can unsubscribe at any time. Consent is not required to obtain any product or service.</span></label>
+<label><input type="checkbox" id="c2"><i></i><span>I agree that Everett Financial, Inc. D/B/A Supreme Lending (NMLS #2129) and its mortgage advisors may call and text me at the number I provided, including using an automatic telephone dialing system or prerecorded or artificial voice messages, about home financing. Message frequency varies. Message and data rates may apply. Reply STOP to opt out, HELP for help. Consent is not a condition of any purchase or of obtaining any product or service.</span></label>
+</div>
+<button class="cta" type="submit" id="go">Talk to an advisor</button>
+<p class="msg" id="msg" role="status"></p>
+</form>
+</div>
+</div></div></header>
+
+<section class="sec"><div class="w">
+<h2>Choose the program that fits</h2>
+<p style="color:var(--mute);margin-top:8px;max-width:40em">Each program works differently. An advisor helps you compare ownership, payments and costs before you decide.</p>
+<div class="progs">
+<div class="prog"><h3>Cost plus Profit <span style="font-weight:500;color:var(--mute)">(Murabaha)</span></h3><p>Islamic home financing with flexible documentation options for homebuyers and investors, for primary residences and eligible investment properties.</p><a href="https://kop.xib.mybluehost.me/website_a6ee0426/program-murabaha.html">Explore Cost plus Profit</a></div>
+<div class="prog"><h3>Diminishing Partnership <span style="font-weight:500;color:var(--mute)">(Musharakah)</span></h3><p>Flexible documentation and asset qualification options. You build your ownership share over time, and the risks of owning the home are shared.</p><a href="https://kop.xib.mybluehost.me/website_a6ee0426/program-partnership.html">Explore Diminishing Partnership</a></div>
+<div class="prog"><h3>Home Earned Equity <span style="font-weight:500;color:var(--mute)">(Ijara)</span></h3><p>Build earned equity toward homeownership, with a low starting down payment and flexible credit options for single family homes, townhomes and certain condos.</p><a href="https://kop.xib.mybluehost.me/website_a6ee0426/program-arrive-eep.html">Explore Home Earned Equity</a></div>
+</div>
+<p class="fine">Credit score minimums, down payment, financing limits and eligible properties differ by program and are listed on each program page. Restrictions apply.</p>
+</div></section>
+
+<section class="sec" style="padding-top:0"><div class="w">
+<h2>What makes Barakah different</h2>
+<div class="vals">
+<div><h3>Riba-free financing</h3><p>Buy your home with Islamic financing that respects your commitment to avoid riba.</p></div>
+<div><h3>Independent Sharia board</h3><p>Independent scholars guide our approach. Read the signed Murabaha reviews and meet the board.</p></div>
+<div><h3>Nonrecourse protection</h3><p>If a default occurs, we do not pursue your other assets.</p></div>
+<div><h3>Shared ownership</h3><p>Our partnership financing lets you build your ownership share over time.</p></div>
+<div><h3>Shared risk</h3><p>Shared ownership comes with shared responsibility. The risks of owning the home are shared too.</p></div>
+<div><h3>Islamic financing is our focus</h3><p>Your values are at the center of what we do. Ask for a side-by-side with your current estimate.</p></div>
+</div>
+<p style="margin-top:18px"><a class="link" href="https://kop.xib.mybluehost.me/website_a6ee0426/fatwas.html">Read the signed Murabaha reviews</a> &nbsp; <a class="link" href="https://kop.xib.mybluehost.me/website_a6ee0426/sharia-board.html">Meet the Sharia board</a></p>
+</div></section>
+
+<section class="sec" style="padding-top:0"><div class="w">
+<div class="grid2 ws">
+<div><h2>Compare it yourself</h2>
+<p style="color:var(--mute);margin-top:10px;max-width:30em">Costs and qualification depend on your file and the program. Put the numbers from your current estimate here, then ask an advisor to show you the same file as riba-free financing. Judge the difference on the paper in front of you.</p></div>
+<div class="fo"><h3>Your estimate, in percentages</h3>
+<div id="gate"><p class="fine" style="margin:8px 0 14px">Upload your Loan Estimate to open the worksheet. The fields stay empty until a document is added.</p>
+<label class="drop" for="up2" id="d2"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 3h11l6 6v20H8z"/><path d="M19 3v6h6M16 14v9M12.5 17.5 16 14l3.5 3.5"/></svg><div><b>Upload your Loan Estimate</b><span>PDF, photo or screenshot</span></div><input type="file" id="up2" accept=".pdf,image/*"></label></div>
+<div id="wsb" hidden>
+<div class="file" id="f2" style="margin:6px 0 12px"></div>
+<p class="fine" style="margin:0 0 12px">Read the figures from your document and type them in.</p>
+<div class="two"><div class="f"><label for="amt">Financing amount ($)</label><input type="text" id="amt" inputmode="decimal"></div><div class="f"><label for="rate">Stated rate (%)</label><input type="text" id="rate" inputmode="decimal"></div></div>
+<div class="two"><div class="f"><label for="apr">APR (%)</label><input type="text" id="apr" inputmode="decimal"></div><div class="f"><label for="orig">Origination charges ($)</label><input type="text" id="orig" inputmode="decimal"></div></div>
+<div class="two"><div class="f"><label for="pts">Points paid ($)</label><input type="text" id="pts" inputmode="decimal"></div><div class="f"><label for="cc">Total closing costs ($)</label><input type="text" id="cc" inputmode="decimal"></div></div>
+<div class="out" id="out" aria-live="polite"></div>
+<p class="fine">This does arithmetic on the figures you enter. It is not a quote, an offer or a comparison of programs.</p></div></div>
+</div></div></section>
+
+<section class="sec" style="padding-top:0"><div class="w">
+<h2>Common questions</h2>
+<div style="margin-top:14px">
+<details><summary>Is Barakah only for Muslims?</summary><p>No. Barakah is open to all qualified applicants regardless of religion or national origin.</p></details>
+<details><summary>Does a review of my estimate cost anything?</summary><p>No. It is free and carries no obligation.</p></details>
+<details><summary>Is financing available in my state?</summary><p>Barakah serves many states. Your advisor will confirm yours when you reach out.</p></details>
+<details><summary>What Shariah review supports Murabaha?</summary><p>Read the signed Murabaha reviews and the scholars' backgrounds on the Barakah site, then bring your questions to an advisor.</p></details>
+</div>
+<div class="band"><h2>Prefer to talk first?</h2><p style="margin-top:10px;opacity:.9">Call, email or pick a time. An advisor answers directly.</p>
+<div class="contact"><span><b>1-833-786-7099</b></span><span>info@barakahmortgage.com</span><a href="https://calendly.com/ahmedbadri/30min">Pick a time on the calendar</a></div></div>
+<p class="fine">This page is a design preview. The form sends nothing until it is connected to the lead system, so use the contact details above for now.</p>
+</div></section>
+
+<footer><div class="w">
+<p>Everett Financial, Inc. D/B/A Supreme Lending, NMLS #2129. Mortgage advisor NMLS #2753124. Equal Housing Lender. For licensing information visit nmlsconsumeraccess.org. www.barakahmortgage.com</p>
+<p>The Murabaha product option entails qualified buyers entering into a Temporary Agency agreement with the financier. The buyer makes monthly payments of cost plus profit on an installment loan, but does not pay interest. The custom documentation used includes an Installment Credit Sale Contract and Security Instrument. The transaction will still require all other state and federally required documents. Applicant is subject to credit and underwriting approval. Restrictions apply. The arithmetic tool above is not a quote, offer or commitment.</p>
+</div></footer>
+
+<script>
+(function(){
+function n(id){var v=parseFloat(String(document.getElementById(id).value).replace(/[^0-9.\-]/g,''));return isNaN(v)?0:v}
+function pct(x){return x.toFixed(2)+'%'}
+function run(){var a=n('amt'),r=n('rate'),apr=n('apr'),o=n('orig'),p=n('pts'),c=n('cc'),out=document.getElementById('out');
+ if(a<=0){out.innerHTML='<p class="fine">Enter the figures from your estimate to see the arithmetic.</p>';return}
+ out.innerHTML='<div class="m"><span>APR minus stated rate</span><b>'+(apr-r).toFixed(2)+' pts</b></div><div class="m"><span>Origination charges as % of amount</span><b>'+pct(o/a*100)+'</b></div><div class="m"><span>Points as % of amount</span><b>'+pct(p/a*100)+'</b></div><div class="m"><span>Closing costs as % of amount</span><b>'+pct(c/a*100)+'</b></div><ul class="qs"><li>Are the origination charges fixed before closing?</li><li>Which fees can I shop for, and which were chosen for me?</li><li>What would this same file look like as riba-free financing?</li></ul>'}
+['amt','rate','apr','orig','pts','cc'].forEach(function(i){document.getElementById(i).addEventListener('input',run)});run();
+function got(inp){var f=inp.files&&inp.files[0];if(!f)return;
+ ['f1','f2'].forEach(function(i){document.getElementById(i).textContent='Added: '+f.name});
+ ['d1','d2'].forEach(function(i){document.getElementById(i).classList.add('on')});
+ document.getElementById('gate').hidden=true;document.getElementById('wsb').hidden=false}
+['up1','up2'].forEach(function(i){document.getElementById(i).addEventListener('change',function(){got(this)})});
+['d1','d2'].forEach(function(i){var d=document.getElementById(i);['dragover','dragenter'].forEach(function(ev){d.addEventListener(ev,function(e){e.preventDefault()})});
+ d.addEventListener('drop',function(e){e.preventDefault();var fl=e.dataTransfer&&e.dataTransfer.files;if(fl&&fl[0]){var t=document.getElementById(i==='d1'?'up1':'up2');try{var dt=new DataTransfer();dt.items.add(fl[0]);t.files=dt.files;got(t)}catch(x){}}})});
+document.getElementById('noest').addEventListener('click',function(e){e.preventDefault();var n=document.getElementById('nm');n.focus()});
+var f=document.getElementById('lead'),m=document.getElementById('msg');
+f.addEventListener('submit',function(e){e.preventDefault();
+ var miss=[];if(!document.getElementById('nm').value.trim())miss.push('name');if(!document.getElementById('ph').value.trim()&&!document.getElementById('em').value.trim())miss.push('a phone or email');
+ m.textContent=miss.length?'Please add '+miss.join(' and ')+'.':'Preview only: nothing was sent, including any uploaded document. Call 1-833-786-7099 to reach an advisor now.'});
+var nsy=document.getElementById('p4');['p1','p2','p3'].forEach(function(i){document.getElementById(i).addEventListener('change',function(){if(this.checked)nsy.checked=false})});
+nsy.addEventListener('change',function(){if(this.checked)['p1','p2','p3'].forEach(function(i){document.getElementById(i).checked=false})});
+})();
+</script>

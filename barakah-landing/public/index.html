@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Barakah Second Look</title>
+<meta name="description" content="Islamic home financing. Send us your current estimate and an advisor shows you the riba-free way.">
+<!-- TODO(launch): remove noindex only after Everett / Supreme Lending Compliance approves the page. -->
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=Public+Sans:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="styles.css">
+<link rel="preload" as="image" href="img/hero.webp" type="image/webp">
+<script src="config.js"></script>
+<script type="module" src="app.js"></script>
+<script type="module" src="worksheet.js"></script>
+</head>
+<body>
+
+<header class="hero"><div class="w">
+<div class="top"><div class="brand"><span data-cfg="brandName">Barakah Mortgage</span><small data-cfg="brandTagline">ISLAMIC HOME FINANCING</small></div><div class="ph" data-cfg="phoneDisplay"></div></div>
+<div class="hg">
+<div>
+<h1>Your faith, your home, your values.</h1>
+<p class="lede">Send us your current estimate. We show you the riba-free way.</p>
+<ul class="pills"><li class="c1">Riba-free</li><li class="c2">Sharia board</li><li class="c3">Open to all</li></ul>
+<picture>
+  <source srcset="img/hero.webp" type="image/webp">
+  <img class="art photo" src="img/hero.jpg" width="520" height="392" fetchpriority="high" decoding="async"
+       alt="A new home with a SOLD sign on the lawn and a hand holding the keys">
+</picture>
+</div>
+
+<div class="sheet" id="start">
+<h2 id="form-title">Talk to an advisor</h2>
+<form id="lead" novalidate aria-labelledby="form-title">
+
+<fieldset class="fs">
+  <legend class="sr-only">What would you like to do?</legend>
+  <div class="chips two2">
+    <input type="radio" name="goal" id="g1" value="buy" checked><label for="g1">Buy a home</label>
+    <input type="radio" name="goal" id="g2" value="refi"><label for="g2">Refinance</label>
+  </div>
+</fieldset>
+
+<fieldset class="fs">
+  <legend class="lab">Programs</legend>
+  <div class="chips">
+    <input type="checkbox" name="program" id="p1" value="murabaha"><label for="p1">Cost plus Profit (Murabaha)</label>
+    <input type="checkbox" name="program" id="p2" value="musharakah"><label for="p2">Diminishing Partnership (Musharakah)</label>
+    <input type="checkbox" name="program" id="p3" value="ijara"><label for="p3">Home Earned Equity (Ijara)</label>
+    <input type="checkbox" name="program" id="p4" value="not-sure" checked><label for="p4">Not sure yet</label>
+  </div>
+</fieldset>
+
+<div class="two" style="margin-top:16px">
+  <div class="f"><label for="nm">Full name</label><input type="text" id="nm" name="name" autocomplete="name" maxlength="120" aria-describedby="nm-err"><p class="err" id="nm-err"></p></div>
+  <div class="f"><label for="ph">Phone</label><input type="tel" id="ph" name="phone" autocomplete="tel" inputmode="tel" maxlength="25" aria-describedby="ph-err"><p class="err" id="ph-err"></p></div>
+</div>
+<div class="two">
+  <div class="f"><label for="em">Email</label><input type="email" id="em" name="email" autocomplete="email" maxlength="254" aria-describedby="em-err"><p class="err" id="em-err"></p></div>
+  <div class="f"><label for="st">State</label>
+    <select id="st" name="state" autocomplete="address-level1" aria-describedby="st-err">
+      <option value="">Choose…</option>
+      <!-- licensed states are filled from config.js -->
+      <option value="OTHER">Other state</option>
+    </select><p class="err" id="st-err"></p></div>
+</div>
+<p class="waitlist" id="waitlist" hidden role="note">Barakah is not available in your state yet. Leave your name and a phone or email and we will let you know if that changes. Please do not attach a document.</p>
+<div class="f"><label for="lg">Language</label><select id="lg" name="language"><option>English</option><option>Arabic</option><option>Urdu</option><option>Other</option></select></div>
+
+<div id="upwrap">
+  <label class="drop" for="up1" id="d1"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 3h11l6 6v20H8z"/><path d="M19 3v6h6M16 14v9M12.5 17.5 16 14l3.5 3.5"/></svg><div><b>Attach your Loan Estimate</b><span>Optional</span></div><input type="file" id="up1" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif,application/pdf,image/jpeg,image/png,image/heic,image/heif" aria-describedby="up1-err"></label>
+  <div class="filerow" data-file-row hidden><span class="file" data-file-name></span><button type="button" class="rm" data-file-remove>Remove<span class="sr-only"> attached file</span></button></div>
+  <p class="err" id="up1-err"></p>
+</div>
+<p class="noest">No estimate yet? <a href="#start" id="noest">Let us show you what you qualify for.</a></p>
+
+<!-- Honeypot: hidden from people and assistive tech. Bots tend to fill it. -->
+<div class="hp" aria-hidden="true"><label for="website">Website</label><input type="text" id="website" name="website" tabindex="-1" autocomplete="off"></div>
+
+<div class="cons">
+<label><input type="checkbox" id="c1" name="consentEmail"><i></i><span id="c1-text">I agree to receive marketing emails about home financing from Everett Financial, Inc. D/B/A Supreme Lending (NMLS #2129). I can unsubscribe at any time. Consent is not required to obtain any product or service.</span></label>
+<label><input type="checkbox" id="c2" name="consentCalls"><i></i><span id="c2-text">I agree that Everett Financial, Inc. D/B/A Supreme Lending (NMLS #2129) and its mortgage advisors may call and text me at the number I provided, including using an automatic telephone dialing system or prerecorded or artificial voice messages, about home financing. Message frequency varies. Message and data rates may apply. Reply STOP to opt out, HELP for help. Consent is not a condition of any purchase or of obtaining any product or service.</span></label>
+</div>
+<button class="cta" type="submit" id="go">Talk to an advisor</button>
+<p class="msg" id="msg" role="status" aria-live="polite"></p>
+</form>
+</div>
+</div></div></header>
+
+<main>
+<section class="sec"><div class="w">
+<h2>Choose the program that fits</h2>
+<p style="color:var(--mute);margin-top:8px;max-width:40em">Each program works differently. An advisor helps you compare ownership, payments and costs before you decide.</p>
+<div class="progs">
+<div class="prog"><h3>Cost plus Profit <span style="font-weight:500;color:var(--mute)">(Murabaha)</span></h3><p>Islamic home financing with flexible documentation options for homebuyers and investors, for primary residences and eligible investment properties.</p><a data-cfg-href="links.murabaha" href="#">Explore Cost plus Profit</a></div>
+<div class="prog"><h3>Diminishing Partnership <span style="font-weight:500;color:var(--mute)">(Musharakah)</span></h3><p>Flexible documentation and asset qualification options. You build your ownership share over time, and the risks of owning the home are shared.</p><a data-cfg-href="links.partnership" href="#">Explore Diminishing Partnership</a></div>
+<div class="prog"><h3>Home Earned Equity <span style="font-weight:500;color:var(--mute)">(Ijara)</span></h3><p>Build earned equity toward homeownership, with a low starting down payment and flexible credit options for single family homes, townhomes and certain condos.</p><a data-cfg-href="links.ijara" href="#">Explore Home Earned Equity</a></div>
+</div>
+<p class="fine">Credit score minimums, down payment, financing limits and eligible properties differ by program and are listed on each program page. Restrictions apply.</p>
+</div></section>
+
+<section class="sec" style="padding-top:0"><div class="w">
+<h2>What makes Barakah different</h2>
+<div class="vals">
+<div><h3>Riba-free financing</h3><p>Buy your home with Islamic financing that respects your commitment to avoid riba.</p></div>
+<div><h3>Independent Sharia board</h3><p>Independent scholars guide our approach. Read the signed Murabaha reviews and meet the board.</p></div>
+<div><h3>Nonrecourse protection</h3><p>If a default occurs, we do not pursue your other assets.</p></div>
+<div><h3>Shared ownership</h3><p>Our partnership financing lets you build your ownership share over time.</p></div>
+<div><h3>Shared risk</h3><p>Shared ownership comes with shared responsibility. The risks of owning the home are shared too.</p></div>
+<div><h3>Islamic financing is our focus</h3><p>Your values are at the center of what we do. Ask for a side-by-side with your current estimate.</p></div>
+</div>
+<p style="margin-top:18px"><a class="link" data-cfg-href="links.reviews" href="#">Read the signed Murabaha reviews</a> &nbsp; <a class="link" data-cfg-href="links.shariaBoard" href="#">Meet the Sharia board</a></p>
+</div></section>
+
+<section class="sec" style="padding-top:0" aria-labelledby="ws-title"><div class="w">
+<div class="grid2 ws">
+<div><h2 id="ws-title">Compare it yourself</h2>
+<p style="color:var(--mute);margin-top:10px;max-width:30em">Costs and qualification depend on your file and the program. Put the numbers from your current estimate here, then ask an advisor to show you the same file as riba-free financing. Judge the difference on the paper in front of you.</p></div>
+<div class="fo"><h3>Your estimate, in percentages</h3>
+<div id="gate"><p class="fine" style="margin:8px 0 14px">Upload your Loan Estimate to open the worksheet. The fields stay empty until a document is added.</p>
+<label class="drop" for="up2" id="d2"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 3h11l6 6v20H8z"/><path d="M19 3v6h6M16 14v9M12.5 17.5 16 14l3.5 3.5"/></svg><div><b>Upload your Loan Estimate</b><span>PDF, photo or screenshot</span></div><input type="file" id="up2" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif,application/pdf,image/jpeg,image/png,image/heic,image/heif" aria-describedby="up2-err"></label>
+<p class="err" id="up2-err"></p></div>
+<div id="wsb" hidden>
+<div class="filerow" data-file-row style="margin:6px 0 12px"><span class="file" data-file-name></span><button type="button" class="rm" data-file-remove>Remove<span class="sr-only"> attached file</span></button></div>
+<p class="fine" style="margin:0 0 12px">Read the figures from your document and type them in.</p>
+<form id="ws" novalidate onsubmit="return false">
+<div class="two"><div class="f"><label for="amt">Financing amount ($)</label><input type="text" id="amt" inputmode="decimal" autocomplete="off"></div><div class="f"><label for="rate">Stated rate (%)</label><input type="text" id="rate" inputmode="decimal" autocomplete="off"></div></div>
+<div class="two"><div class="f"><label for="apr">APR (%)</label><input type="text" id="apr" inputmode="decimal" autocomplete="off"></div><div class="f"><label for="orig">Origination charges ($)</label><input type="text" id="orig" inputmode="decimal" autocomplete="off"></div></div>
+<div class="two"><div class="f"><label for="pts">Points paid ($)</label><input type="text" id="pts" inputmode="decimal" autocomplete="off"></div><div class="f"><label for="cc">Total closing costs ($)</label><input type="text" id="cc" inputmode="decimal" autocomplete="off"></div></div>
+<button type="button" class="reset" id="ws-reset">Start over</button>
+</form>
+<div class="out" id="out" aria-live="polite"></div>
+</div>
+<p class="fine">This does arithmetic on the figures you enter. It is not a quote, an offer or a comparison of programs.</p>
+</div>
+</div></div></section>
+
+<section class="sec" style="padding-top:0"><div class="w">
+<h2>Common questions</h2>
+<div style="margin-top:14px">
+<details><summary>Is Barakah only for Muslims?</summary><p>No. Barakah is open to all qualified applicants regardless of religion or national origin.</p></details>
+<details><summary>Does a review of my estimate cost anything?</summary><p>No. It is free and carries no obligation.</p></details>
+<details><summary>Is financing available in my state?</summary><p>Barakah serves many states. Your advisor will confirm yours when you reach out.</p></details>
+<details><summary>What Shariah review supports Murabaha?</summary><p>Read the signed Murabaha reviews and the scholars' backgrounds on the Barakah site, then bring your questions to an advisor.</p></details>
+</div>
+<div class="band"><h2>Prefer to talk first?</h2><p style="margin-top:10px;opacity:.9">Call, email or pick a time. An advisor answers directly.</p>
+<div class="contact"><span><b data-cfg="phoneDisplay"></b></span><span data-cfg="email"></span><a data-cfg-href="calendarUrl" href="#">Pick a time on the calendar</a></div></div>
+<p class="fine" id="preview-note" hidden>This page is a design preview. The form sends nothing until it is connected to the lead system, so use the contact details above for now.</p>
+</div></section>
+</main>
+
+<footer><div class="w">
+<p>Everett Financial, Inc. D/B/A Supreme Lending, NMLS #2129. Mortgage advisor NMLS #2753124. Equal Housing Lender. For licensing information visit <a href="https://www.nmlsconsumeraccess.org" rel="noopener">nmlsconsumeraccess.org</a>. <span data-cfg="websiteDisplay"></span><span data-cfg-address hidden></span></p>
+<p>The Murabaha product option entails qualified buyers entering into a Temporary Agency agreement with the financier. The buyer makes monthly payments of cost plus profit on an installment loan, but does not pay interest. The custom documentation used includes an Installment Credit Sale Contract and Security Instrument. The transaction will still require all other state and federally required documents. Applicant is subject to credit and underwriting approval. Restrictions apply. The arithmetic tool above is not a quote, offer or commitment.</p>
+</div></footer>
+
+</body>
+</html>
