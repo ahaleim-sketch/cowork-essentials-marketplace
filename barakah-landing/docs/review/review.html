@@ -1,0 +1,315 @@
+<title>Barakah Pre-Launch Review</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Public+Sans:wght@400;600;700&display=swap">
+<style>
+/* Layout: a single-column review memo. Green masthead with the verdict, then decision items as
+   severity-striped entries a reviewer can scan, then what was fixed and what passed. */
+:root{
+  --bg:#f7f4ec; --surface:#fffdf8; --fg:#14231c; --mute:#51635a; --line:#dcd6c4;
+  --band:#0b4a36; --band-fg:#f4f1e6; --gold:#e0bd6a; --accent:#8a6a1c;
+  --blocker:#b3261e; --blocker-bg:#fbe9e7; --high:#a8590b; --high-bg:#fdf0e1;
+  --medium:#6b5d0f; --medium-bg:#f7f1d6; --low:#3d5a4c; --low-bg:#e8efe9;
+  --pass:#2c702c; --pass-bg:#e5f1e3;
+  --disp:'Newsreader',Georgia,'Times New Roman',serif;
+  --body:'Public Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e1a15; --surface:#15261f; --fg:#eef3ee; --mute:#a6b8ac; --line:#2b4a3c;
+  --band:#0d3a2b; --band-fg:#f1f5ef; --gold:#d3ad5c; --accent:#d3ad5c;
+  --blocker:#ffb4a9; --blocker-bg:#3a1d1a; --high:#ffc58a; --high-bg:#36261a;
+  --medium:#e8d77a; --medium-bg:#302c17; --low:#a9cdb8; --low-bg:#1c2e26;
+  --pass:#8fd88f; --pass-bg:#183019; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1a15; --surface:#15261f; --fg:#eef3ee; --mute:#a6b8ac; --line:#2b4a3c;
+  --band:#0d3a2b; --band-fg:#f1f5ef; --gold:#d3ad5c; --accent:#d3ad5c;
+  --blocker:#ffb4a9; --blocker-bg:#3a1d1a; --high:#ffc58a; --high-bg:#36261a;
+  --medium:#e8d77a; --medium-bg:#302c17; --low:#a9cdb8; --low-bg:#1c2e26;
+  --pass:#8fd88f; --pass-bg:#183019; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 var(--body)}
+.w{max-width:52rem;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--disp);font-weight:600;line-height:1.15;text-wrap:balance;margin:0}
+p{margin:0}
+a{color:var(--accent)}
+a:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.mast{background:var(--band);color:var(--band-fg);padding-block:36px 40px}
+.eyebrow{font:700 .72rem var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+.mast h1{font-size:clamp(2rem,6vw,2.9rem);margin-top:10px}
+.mast .meta{margin-top:10px;opacity:.85;font-size:.95rem}
+.verdict{margin-top:24px;display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start;background:rgba(0,0,0,.18);border-left:4px solid var(--gold);padding:16px 18px;border-radius:4px}
+.verdict b{font-family:var(--disp);font-size:1.35rem;font-weight:600}
+.verdict p{opacity:.92}
+.tally{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;padding:0;list-style:none}
+.tally li{background:var(--band-fg);color:#10281f;border-radius:99px;padding:4px 12px;font-weight:700;font-size:.85rem;font-variant-numeric:tabular-nums}
+
+main{padding-block:8px 64px}
+section{padding-top:44px}
+section>h2{font-size:1.65rem}
+.lead{color:var(--mute);margin-top:8px;max-width:40em}
+
+.items{display:grid;gap:12px;margin-top:20px}
+.item{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--sev);border-radius:6px;padding:16px 18px;display:grid;gap:8px;min-width:0}
+.item header{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 12px}
+.item h3{font-size:1.12rem;flex:1 1 18rem;min-width:0}
+.num{font:700 .8rem var(--body);color:var(--mute);font-variant-numeric:tabular-nums}
+.pill{font:700 .72rem var(--body);letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:99px;color:var(--sev);background:var(--sev-bg);white-space:nowrap}
+.item dl{display:grid;grid-template-columns:7.5rem 1fr;gap:4px 14px;margin:0;font-size:.94rem}
+.item dt{color:var(--mute);font-weight:600}
+.item dd{margin:0;min-width:0}
+.sev-blocker{--sev:var(--blocker);--sev-bg:var(--blocker-bg)}
+.sev-high{--sev:var(--high);--sev-bg:var(--high-bg)}
+.sev-medium{--sev:var(--medium);--sev-bg:var(--medium-bg)}
+.sev-low{--sev:var(--low);--sev-bg:var(--low-bg)}
+
+.fixed{margin-top:18px;border-top:2px solid var(--fg)}
+.fixed div{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:6px 24px;padding:12px 0;border-bottom:1px solid var(--line);font-size:.95rem}
+.fixed div span:first-child{color:var(--mute)}
+.fixed .hd{font:700 .75rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+
+.passes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 28px;margin-top:18px}
+.passes article{border-top:1px solid var(--line);padding-top:12px}
+.passes h3{font-size:1.05rem;display:flex;gap:8px;align-items:center}
+.passes h3::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--pass);flex:none}
+.passes p{color:var(--mute);font-size:.94rem;margin-top:6px}
+
+.tbl{overflow-x:auto;margin-top:18px;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:32rem;font-size:.93rem}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:700 .75rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+tr:last-child td{border-bottom:0}
+td.r{font-variant-numeric:tabular-nums;white-space:nowrap}
+.ok{color:var(--pass);font-weight:700}.unv{color:var(--high);font-weight:700}
+
+.views{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.views button{font:600 .9rem var(--body);color:var(--fg);background:var(--surface);border:1.5px solid var(--line);border-radius:99px;padding:8px 16px;min-height:40px;cursor:pointer}
+.views button[aria-selected="true"]{background:var(--band);border-color:var(--band);color:var(--band-fg)}
+.views button:focus-visible,.frame:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.frame{margin-top:14px;max-height:78vh;overflow-y:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface);position:relative}
+.frame::before{content:"Draft screenshot \2014 not a live page";position:sticky;top:0;display:block;z-index:1;padding:6px 12px;font:700 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;background:var(--gold);color:#10281f}
+.frame img{display:block;width:100%;height:auto;max-width:100%}
+.frame.phone img{max-width:390px;margin:0 auto}
+.frame.small img{max-width:500px;margin:0 auto}
+.cap{color:var(--mute);font-size:.85rem;margin-top:8px}
+.note{margin-top:40px;padding:16px 18px;border:1px dashed var(--line);border-radius:6px;color:var(--mute);font-size:.9rem}
+
+@media (max-width:640px){
+  .passes{grid-template-columns:1fr}
+  .fixed div{grid-template-columns:1fr}
+  .fixed .hd{display:none}
+  .item dl{grid-template-columns:1fr}
+  .item dd{margin-bottom:6px}
+}
+</style>
+
+<header class="mast"><div class="w">
+  <p class="eyebrow">For Everett Financial, Inc. D/B/A Supreme Lending &middot; Compliance</p>
+  <h1>Barakah &ldquo;Second Look&rdquo; landing page: pre-launch review</h1>
+  <p class="meta">Reviewed November 9, 2026. Islamic home financing landing page and Loan Estimate worksheet, company NMLS #2129, advisor NMLS #2753124.</p>
+  <div class="verdict">
+    <b>Not ready to launch</b>
+    <p>The technical build passes. Sixteen items need a business or Compliance decision, eight of them before launch. The page is hidden from search engines and its form sends nothing until you approve it.</p>
+  </div>
+  <ul class="tally" aria-label="Open items by severity">
+    <li>8 blockers</li><li>2 high</li><li>3 medium</li><li>3 low</li><li>9 fixed in code</li>
+  </ul>
+</div></header>
+
+<main class="w">
+
+<section aria-labelledby="h-draft">
+  <h2 id="h-draft">The draft page</h2>
+  <p class="lead">Screenshots of the page as built on November 9, 2026. The site is not live: the form sends nothing and the page is hidden from search engines. The Rate-era phone, email and links still shown here are items 3 and 4 below.</p>
+  <div class="views" role="tablist" aria-label="Choose a view">
+    <button type="button" role="tab" id="t-desktop" aria-controls="v-desktop" aria-selected="true">Desktop</button>
+    <button type="button" role="tab" id="t-phone" aria-controls="v-phone" aria-selected="false" tabindex="-1">Phone</button>
+    <button type="button" role="tab" id="t-dark" aria-controls="v-dark" aria-selected="false" tabindex="-1">Dark mode</button>
+    <button type="button" role="tab" id="t-ws" aria-controls="v-ws" aria-selected="false" tabindex="-1">Worksheet filled in</button>
+    <button type="button" role="tab" id="t-err" aria-controls="v-err" aria-selected="false" tabindex="-1">Form error messages</button>
+  </div>
+  <div class="frame" role="tabpanel" id="v-desktop" aria-labelledby="t-desktop" tabindex="0">
+    <img src="img/desktop-light.jpg" width="1600" height="4241" alt="Full Barakah landing page at desktop width, light mode: green hero with the advisor form, program cards, differentiators, Compare it yourself worksheet, FAQ, contact band and licensing footer.">
+  </div>
+  <div class="frame phone" role="tabpanel" id="v-phone" aria-labelledby="t-phone" tabindex="0" hidden>
+    <img src="img/phone.jpg" width="780" height="11714" loading="lazy" alt="Full Barakah landing page at phone width (390 pixels), light mode, with sections stacked in one column.">
+  </div>
+  <div class="frame" role="tabpanel" id="v-dark" aria-labelledby="t-dark" tabindex="0" hidden>
+    <img src="img/desktop-dark.jpg" width="1600" height="4241" loading="lazy" alt="Full Barakah landing page at desktop width in dark mode.">
+  </div>
+  <div class="frame small" role="tabpanel" id="v-ws" aria-labelledby="t-ws" tabindex="0" hidden>
+    <img src="img/worksheet.jpg" width="980" height="1538" loading="lazy" alt="The worksheet after a Loan Estimate is attached and sample figures are typed in: APR minus stated rate 0.23 points, origination 1.00%, points 0.50%, closing costs 3.09%, then three questions to ask an advisor and the not-a-quote note.">
+  </div>
+  <div class="frame small" role="tabpanel" id="v-err" aria-labelledby="t-err" tabindex="0" hidden>
+    <img src="img/form-errors.jpg" width="992" height="2524" loading="lazy" alt="The advisor form after submitting it empty, showing inline messages under name, phone and state, and a summary under the button.">
+  </div>
+  <p class="cap">Sample figures in the worksheet view are examples, not a real estimate. Scroll inside the frame to see the whole page.</p>
+</section>
+
+<section aria-labelledby="h-open">
+  <h2 id="h-open">Decisions needed from Compliance or the business</h2>
+  <p class="lead">Ordered by severity. Each entry says what was found, where it appears on the page, and what we need from you. This review is not legal advice; state-law points are listed for you to confirm.</p>
+
+  <div class="items">
+    <article class="item sev-blocker">
+      <header><span class="num">1</span><h3>Written approval of the copy and consent wording</h3><span class="pill">Blocker</span></header>
+      <dl><dt>Found</dt><dd>The page copy, both consent checkboxes, the program names and the Murabaha disclosure have not been approved. The disclosure still says &ldquo;with the financier&rdquo;, wording carried over from Rate.</dd>
+      <dt>Where</dt><dd>Whole page; consent text above the submit button; footer disclosure.</dd>
+      <dt>Needed</dt><dd>Written sign-off. Any wording change to the consents is versioned, so each lead records which text the person saw.</dd></dl>
+    </article>
+    <article class="item sev-blocker">
+      <header><span class="num">2</span><h3>&ldquo;Barakah Mortgage&rdquo; as a registered trade name</h3><span class="pill">Blocker</span></header>
+      <dl><dt>Found</dt><dd>The page advertises as &ldquo;Barakah Mortgage&rdquo;. It is not confirmed that this name is registered in NMLS as an Everett trade name in every state served.</dd>
+      <dt>Where</dt><dd>Header brand.</dd>
+      <dt>Needed</dt><dd>Confirm the DBA. Until then a fallback is &ldquo;Barakah Islamic home financing, offered by Everett Financial, Inc. D/B/A Supreme Lending&rdquo;.</dd></dl>
+    </article>
+    <article class="item sev-blocker">
+      <header><span class="num">3</span><h3>Phone, email and website are from the Rate era</h3><span class="pill">Blocker</span></header>
+      <dl><dt>Found</dt><dd>1-833-786-7099, info@barakahmortgage.com and barakahmortgage.com appear in the header, contact band, footer and error messages. If they reach a former company, the page misstates who the consumer is dealing with.</dd>
+      <dt>Needed</dt><dd>Contact details Everett controls.</dd></dl>
+    </article>
+    <article class="item sev-blocker">
+      <header><span class="num">4</span><h3>Program and Sharia board links point to a staging site</h3><span class="pill">Blocker</span></header>
+      <dl><dt>Found</dt><dd>All five links go to a temporary Bluehost host. The Home Earned Equity (Ijara) page address uses a different program name (&ldquo;arrive-eep&rdquo;).</dd>
+      <dt>Needed</dt><dd>Final URLs, with program names on those pages matching the approved names.</dd></dl>
+    </article>
+    <article class="item sev-blocker">
+      <header><span class="num">5</span><h3>Privacy Policy and Terms / SMS Terms</h3><span class="pill">Blocker</span></header>
+      <dl><dt>Found</dt><dd>Links now exist under the consent boxes and in the footer, but they open placeholder pages. California (CalOPPA) requires a privacy policy on a site collecting personal information, and SMS opt-ins are expected to link privacy and terms.</dd>
+      <dt>Needed</dt><dd>Everett's policies, or links to them.</dd></dl>
+    </article>
+    <article class="item sev-blocker">
+      <header><span class="num">6</span><h3>Where lead data and Loan Estimates are kept</h3><span class="pill">Blocker</span></header>
+      <dl><dt>Found</dt><dd>Leads and consent records would be stored in a Cloudflare database, optional Loan Estimates in private Cloudflare storage, and lead details emailed to one advisor inbox. Nothing goes to a CRM, an AI service or any other third party.</dd>
+      <dt>Needed</dt><dd>Approval of this data store under Everett's Safeguards Rule and vendor program; an Everett-managed inbox for alerts; a retention period for lead records (consent records at least 4 years). Uploaded files are already set to delete after 30 days, and uploads stay off until you approve them.</dd></dl>
+    </article>
+    <article class="item sev-blocker">
+      <header><span class="num">7</span><h3>State licensing statements</h3><span class="pill">Blocker</span></header>
+      <dl><dt>Found</dt><dd>The footer has no state-specific licensing text for the seven states served: California, Florida, Minnesota, Oregon, Texas, Virginia and Washington.</dd>
+      <dt>Needed</dt><dd>Confirm what each state requires (for example California DFPI/CRMLA wording and the Texas SML complaint and recovery-fund notice) and supply the text or a &ldquo;State licensing&rdquo; link. Some states may require the originator&rsquo;s name beside the NMLS ID; the page currently shows no personal name by request.</dd></dl>
+    </article>
+    <article class="item sev-blocker">
+      <header><span class="num">8</span><h3>&ldquo;Nonrecourse protection&rdquo; claim</h3><span class="pill">Blocker</span></header>
+      <dl><dt>Found</dt><dd>&ldquo;If a default occurs, we do not pursue your other assets.&rdquo; This is an absolute statement about default consequences across all programs and states (UDAAP; Reg N, 12 CFR 1014).</dd>
+      <dt>Where</dt><dd>&ldquo;What makes Barakah different&rdquo; section.</dd>
+      <dt>Needed</dt><dd>Substantiate it for every program and state and add a qualifier, or remove it.</dd></dl>
+    </article>
+    <article class="item sev-high">
+      <header><span class="num">9</span><h3>&ldquo;Shared risk&rdquo; wording</h3><span class="pill">High</span></header>
+      <dl><dt>Found</dt><dd>&ldquo;The risks of owning the home are shared&rdquo; appears in the differentiators and the Diminishing Partnership card. It may overstate the allocation if the buyer carries taxes, insurance, maintenance and value loss.</dd>
+      <dt>Needed</dt><dd>Wording that matches the contract, or removal.</dd></dl>
+    </article>
+    <article class="item sev-high">
+      <header><span class="num">10</span><h3>Scheduling link contains a personal name</h3><span class="pill">High</span></header>
+      <dl><dt>Found</dt><dd>The &ldquo;Pick a time on the calendar&rdquo; link uses a URL with the advisor&rsquo;s personal name, against the page&rsquo;s no-personal-name rule.</dd>
+      <dt>Needed</dt><dd>A team or brand scheduling link, or remove the link.</dd></dl>
+    </article>
+    <article class="item sev-medium">
+      <header><span class="num">11</span><h3>Calls and texts consent wording</h3><span class="pill">Medium</span></header>
+      <dl><dt>Found</dt><dd>The consent says &ldquo;about home financing&rdquo; but not &ldquo;marketing&rdquo;, and names Everett while the page brand is Barakah.</dd>
+      <dt>Needed</dt><dd>Confirm it meets prior express written consent for telemarketing, including Florida, Texas, Virginia and Washington rules.</dd></dl>
+    </article>
+    <article class="item sev-medium">
+      <header><span class="num">12</span><h3>Disclosures for Musharakah and Ijara</h3><span class="pill">Medium</span></header>
+      <dl><dt>Found</dt><dd>Only Murabaha has a product disclosure. &ldquo;Low starting down payment&rdquo; (Ijara) states no amount or percentage, so it is not a Reg Z triggering term, but it must be accurate.</dd>
+      <dt>Needed</dt><dd>Approved disclosures, or confirmation that the program pages carry them.</dd></dl>
+    </article>
+    <article class="item sev-medium">
+      <header><span class="num">13</span><h3>Physical postal address</h3><span class="pill">Medium</span></header>
+      <dl><dt>Found</dt><dd>No mailing address on the page (Rate&rsquo;s Chicago address was removed).</dd>
+      <dt>Needed</dt><dd>An address before any marketing email is sent (CAN-SPAM).</dd></dl>
+    </article>
+    <article class="item sev-low">
+      <header><span class="num">14</span><h3>&ldquo;Free and carries no obligation&rdquo;; &ldquo;An advisor answers directly&rdquo;</h3><span class="pill">Low</span></header>
+      <dl><dt>Needed</dt><dd>Confirm there is no fee or credit pull for an estimate review and that the line is staffed, or soften to &ldquo;An advisor will reply.&rdquo;</dd></dl>
+    </article>
+    <article class="item sev-low">
+      <header><span class="num">15</span><h3>AI-generated hero photo</h3><span class="pill">Low</span></header>
+      <dl><dt>Needed</dt><dd>Decide whether to add an &ldquo;Illustrative image&rdquo; note.</dd></dl>
+    </article>
+    <article class="item sev-low">
+      <header><span class="num">16</span><h3>Equal Housing logo</h3><span class="pill">Low</span></header>
+      <dl><dt>Found</dt><dd>&ldquo;Equal Housing Lender&rdquo; is in the footer as text; there is no logo.</dd>
+      <dt>Needed</dt><dd>Optional: supply the official logo file if you want it shown.</dd></dl>
+    </article>
+  </div>
+</section>
+
+<section aria-labelledby="h-fixed">
+  <h2 id="h-fixed">Already fixed</h2>
+  <p class="lead">Changes made during this review that did not need a business decision. The first two are wording changes you may still want to confirm.</p>
+  <div class="fixed">
+    <div class="hd"><span>Finding</span><span>Change</span></div>
+    <div><span>&ldquo;Let us show you what you qualify for&rdquo; implied the visitor qualifies.</span><span>Now &ldquo;Let us show you what you <b>may</b> qualify for.&rdquo;</span></div>
+    <div><span>The FAQ said &ldquo;Barakah serves many states&rdquo;.</span><span>Now names the seven licensed states.</span></div>
+    <div><span>No privacy or terms links.</span><span>Links added under the consent boxes and in the footer (pages pending, item 5).</span></div>
+    <div><span>The form did not say what happens to an attached Loan Estimate.</span><span>Both upload areas now say whether the file stays on the visitor&rsquo;s device or is sent securely to the advisor and deleted after 30 days.</span></div>
+    <div><span>Visitors from states Barakah does not serve could consent to calls and texts.</span><span>The calls and texts box is hidden and cleared when &ldquo;Other state&rdquo; is chosen.</span></div>
+    <div><span>The advisor alert trusted a consent even if the wording shown did not match the approved text.</span><span>A mismatch is now reported as no consent, and the alert warns separately when email or calls/texts consent is missing.</span></div>
+    <div><span>The NMLS link went to the NMLS home page.</span><span>Now opens the company record for NMLS #2129.</span></div>
+    <div><span>Fonts loaded from Google, sending each visitor&rsquo;s IP address to a third party.</span><span>Fonts are now served from the site itself; the page makes no third-party requests.</span></div>
+    <div><span>Missing site icon caused a browser error.</span><span>Icon added.</span></div>
+  </div>
+</section>
+
+<section aria-labelledby="h-pass">
+  <h2 id="h-pass">What passes</h2>
+  <div class="passes">
+    <article><h3>No triggering terms</h3><p>No rates, payment amounts, down-payment amounts or percentages, terms or finance charges. No claims about cost, savings, speed, approval odds or guarantees.</p></article>
+    <article><h3>Restricted words</h3><p>&ldquo;Loan&rdquo;, &ldquo;interest&rdquo; and &ldquo;lender&rdquo; appear only in the Loan Estimate document name, the worksheet labels, &ldquo;Equal Housing Lender&rdquo; and the Murabaha disclosure. No personal name in the page text.</p></article>
+    <article><h3>Fair lending</h3><p>&ldquo;Open to all qualified applicants regardless of religion or national origin&rdquo; is on the page, along with an &ldquo;Open to all&rdquo; label in the header.</p></article>
+    <article><h3>Required disclosures present</h3><p>Company legal name and NMLS #2129, advisor NMLS #2753124, Equal Housing statement, NMLS Consumer Access link, Murabaha disclosure, and a &ldquo;not a quote&rdquo; note under the worksheet that is always visible.</p></article>
+    <article><h3>Consent design</h3><p>Two separate boxes, unchecked by default and not required to submit. They name the legal entity and include STOP/HELP, message frequency, data rates and &ldquo;not a condition of purchase&rdquo;.</p></article>
+    <article><h3>Consent evidence</h3><p>For each box the server records checked or not, time, IP address, browser, page address, the exact text shown and its version, saved together with the lead.</p></article>
+    <article><h3>No automated outreach</h3><p>The system only emails the advisor. It never sends texts or places calls.</p></article>
+    <article><h3>Worksheet is arithmetic only</h3><p>It shows percentages of the visitor&rsquo;s own figures and three neutral questions. No judgements, benchmarks, savings or program comparisons.</p></article>
+    <article><h3>Personal data</h3><p>None in web addresses, server logs, email subject lines or analytics. There are no analytics or tracking pixels on the page.</p></article>
+    <article><h3>Loan Estimate files</h3><p>Uploads are off until approved. When on, files are checked by content, stored privately under random names, and opened only through links that expire.</p></article>
+  </div>
+</section>
+
+<section aria-labelledby="h-tech">
+  <h2 id="h-tech">Technical checks</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Check</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>Accessibility (WCAG 2.2 AA, automated axe scan)</td><td class="r"><span class="ok">0 issues</span> in light and dark mode</td></tr>
+      <tr><td>Lighthouse, desktop</td><td class="r">Performance 100 &middot; Accessibility 100 &middot; Best practices 100</td></tr>
+      <tr><td>Lighthouse, mobile</td><td class="r">Performance 97 &middot; Accessibility 100 &middot; Best practices 100</td></tr>
+      <tr><td>Search (SEO) score</td><td class="r">63, only because indexing is blocked on purpose until launch</td></tr>
+      <tr><td>Phone to wide desktop (360&ndash;1440 px)</td><td class="r"><span class="ok">No sideways scrolling</span></td></tr>
+      <tr><td>Keyboard only</td><td class="r"><span class="ok">Every control reachable, focus always visible</span></td></tr>
+      <tr><td>Reduced motion setting</td><td class="r"><span class="ok">Respected</span></td></tr>
+      <tr><td>Third-party requests</td><td class="r"><span class="ok">None</span></td></tr>
+      <tr><td>Program and Sharia board links</td><td class="r">Load, but on the staging host (item 4)</td></tr>
+      <tr><td>barakahmortgage.com, calendar, NMLS Consumer Access</td><td class="r"><span class="unv">Not verified</span>, blocked from the test environment; check by hand</td></tr>
+      <tr><td>Automated tests</td><td class="r">111 passing</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<p class="note">How to respond: comment on any item or screenshot on this page, or reply with your decision for each numbered item. Second opinions on the design and copy are welcome too. Once items 1 to 8 are resolved, the form can be switched on. File uploads are approved separately, under item 6.</p>
+
+</main>
+<script>
+(function () {
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.views [role="tab"]'));
+  function show(tab, focus) {
+    tabs.forEach(function (t) {
+      var on = t === tab;
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+    });
+    if (focus) tab.focus();
+  }
+  tabs.forEach(function (t, i) {
+    t.addEventListener('click', function () { show(t, false); });
+    t.addEventListener('keydown', function (e) {
+      var n = e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowLeft' ? i - 1 : e.key === 'Home' ? 0 : e.key === 'End' ? tabs.length - 1 : null;
+      if (n === null) return;
+      e.preventDefault();
+      show(tabs[(n + tabs.length) % tabs.length], true);
+    });
+  });
+})();
+</script>

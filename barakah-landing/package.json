@@ -8,11 +8,13 @@
     "dev": "node scripts/serve.mjs",
     "test": "vitest run",
     "test:e2e": "playwright test --trace off",
-    "screenshots": "node scripts/screenshots.mjs"
+    "screenshots": "node scripts/screenshots.mjs",
+    "review:package": "node scripts/build-review-package.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.10.2",
     "@playwright/test": "1.63.0",
+    "esbuild": "^0.25.10",
     "vitest": "3.2.4"
   }
 }
