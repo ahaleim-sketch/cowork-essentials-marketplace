@@ -90,7 +90,7 @@ test.describe('lead form', () => {
     await fillValid(page);
     await page.setInputFiles('#up1', pdf());
     await page.click('#go');
-    await expect(page.locator('#msg')).toHaveText('Thank you. An advisor will contact you.');
+    await expect(page.locator('#msg')).toHaveText('Thank you. An advisor will contact you. Please have your Loan Estimate ready for the call.');
     const body = req.postDataBuffer().toString('latin1');
     expect(body).not.toContain('name="estimate"');
     expect(body).not.toContain('%%%%');
@@ -132,6 +132,42 @@ test.describe('lead form', () => {
     const body = req.postDataBuffer().toString('latin1');
     expect(body).not.toContain('name="estimate"');
     expect(body).toContain('"waitlist":true');
+  });
+
+  test('"Other state" hides and clears the calls/texts consent', async ({ page }) => {
+    await open(page);
+    await page.click('#c2-text');
+    await page.selectOption('#st', 'OTHER');
+    await expect(page.locator('#c2-label')).toBeHidden();
+    await expect(page.locator('#c2')).not.toBeChecked();
+    await page.selectOption('#st', 'TX');
+    await expect(page.locator('#c2-label')).toBeVisible();
+  });
+
+  test('upload notices say where the file goes', async ({ page }) => {
+    await open(page);
+    await expect(page.locator('[data-upload-note="hero"]')).toHaveText('Optional. Stays on this device. It is not sent with the form.');
+    await expect(page.locator('[data-upload-note="ws"]')).toHaveText('PDF, photo or screenshot. Stays on this device. It is not sent with the form.');
+    const p2 = await page.context().newPage();
+    await open(p2, { sendEstimateFile: true });
+    await expect(p2.locator('[data-upload-note="hero"]')).toContainText('goes securely to your advisor only and is deleted after 30 days');
+  });
+
+  test('kept estimate: success message asks them to have it ready', async ({ page }) => {
+    await page.route('**/api/lead', (r) => r.fulfill({ json: { ok: true } }));
+    await open(page, { formLive: true, minMsOnPage: 0 });
+    await fillValid(page);
+    await page.setInputFiles('#up1', pdf());
+    await page.click('#go');
+    await expect(page.locator('#msg')).toHaveText('Thank you. An advisor will contact you. Please have your Loan Estimate ready for the call.');
+  });
+
+  test('FAQ lists the licensed states and policy links work', async ({ page, request }) => {
+    await open(page);
+    await expect(page.locator('[data-cfg-states]')).toHaveText('California, Florida, Minnesota, Oregon, Texas, Virginia and Washington');
+    for (const href of ['privacy.html', 'terms.html']) expect((await request.get('/' + href)).status()).toBe(200);
+    await expect(page.locator('.legal a')).toHaveCount(2);
+    await expect(page.locator('footer a[href="privacy.html"]')).toHaveCount(1);
   });
 
   test('upload rejects wrong type and oversize files', async ({ page }) => {

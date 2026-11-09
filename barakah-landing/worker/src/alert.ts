@@ -12,7 +12,10 @@ const PROGRAM_NAME: Record<string, string> = {
 export function buildAlert(id: string, lead: Lead, at: string, estimate: { link: string; ttlHours: number } | null) {
   const goal = lead.goal === 'buy' ? 'Buy a home' : 'Refinance';
   const subject = lead.waitlist ? `Barakah waitlist request (other state)` : `New Barakah lead: ${goal} (${lead.state})`;
-  const consent = (b: boolean) => (b ? 'yes' : 'NO');
+  // A consent only counts if the person saw the approved wording.
+  const ok = (c: Lead['consent']['email']) => c.granted && c.textMatchesServer;
+  const consent = (c: Lead['consent']['email']) =>
+    ok(c) ? 'yes' : c.granted ? 'NO (box checked, but the wording shown does not match the approved text; treat as no consent)' : 'NO';
   const estimateLine = estimate
     ? `Loan Estimate: ${estimate.link}\n  (private link, expires in ${estimate.ttlHours} hours; run "npm run leads -- link ${id}" for a new one)`
     : lead.estimateAttachedNotSent
@@ -32,9 +35,10 @@ export function buildAlert(id: string, lead: Lead, at: string, estimate: { link:
     `Goal:      ${goal}`,
     `Programs:  ${lead.programs.map((p) => PROGRAM_NAME[p]).join(', ')}`,
     '',
-    `Marketing email consent:        ${consent(lead.consent.email.granted)}`,
-    `Calls/texts (autodialer) consent: ${consent(lead.consent.callsTexts.granted)}`,
-    ...(lead.consent.callsTexts.granted ? [] : ['Do not add this person to automated calls or texts.']),
+    `Marketing email consent:        ${consent(lead.consent.email)}`,
+    `Calls/texts (autodialer) consent: ${consent(lead.consent.callsTexts)}`,
+    ...(ok(lead.consent.email) ? [] : ['Do not add this person to marketing emails.']),
+    ...(ok(lead.consent.callsTexts) ? [] : ['Do not add this person to automated calls or texts.']),
     '',
     estimateLine,
     '',

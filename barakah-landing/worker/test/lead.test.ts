@@ -265,6 +265,28 @@ describe('"Other state" waitlist', () => {
   });
 });
 
+describe('consent handling in the alert', () => {
+  it('a checked box with wording that does not match counts as NO; missing email consent is flagged', async () => {
+    const { env } = makeEnv();
+    const mail = fakeMail();
+    await handle(leadRequest(payload({ consent: { email: { granted: false, text: '' }, callsTexts: { granted: true, text: 'some other wording' } } })), env, { sendEmail: mail.sendEmail });
+    const t = mail.sent[0].text;
+    expect(t).toContain('Calls/texts (autodialer) consent: NO (box checked, but the wording shown does not match');
+    expect(t).toContain('Do not add this person to automated calls or texts.');
+    expect(t).toContain('Do not add this person to marketing emails.');
+  });
+
+  it('matching wording counts as yes and adds no warning', async () => {
+    const { env } = makeEnv();
+    const mail = fakeMail();
+    await handle(leadRequest(payload({ consent: { email: { granted: true, text: CONSENT_EMAIL_TEXT }, callsTexts: { granted: true, text: CONSENT_TEXT.callsTexts } } })), env, { sendEmail: mail.sendEmail });
+    const t = mail.sent[0].text;
+    expect(t).toContain('Marketing email consent:        yes');
+    expect(t).toContain('Calls/texts (autodialer) consent: yes');
+    expect(t).not.toContain('Do not add');
+  });
+});
+
 describe('email format', () => {
   it('puts no user data in headers and encodes non-ASCII safely', () => {
     const raw = toMime('leads@x.test', 'a@x.test', 'New Barakah lead: Buy a home (TX)', 'Name: Zoë Ali\nLine 2', new Date('2026-11-09T12:00:00Z'));

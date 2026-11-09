@@ -31,6 +31,20 @@ function bindConfig() {
     st.insertBefore(o, other);
   }
   $('preview-note').hidden = Boolean(cfg.formLive);
+
+  // Say plainly what happens to an attached Loan Estimate (privacy).
+  const kept = 'Stays on this device. It is not sent with the form.';
+  const sent = `If you send the form, it goes securely to your advisor only and is deleted after ${cfg.estimateRetentionDays} days.`;
+  const hero = document.querySelector('[data-upload-note="hero"]');
+  const ws = document.querySelector('[data-upload-note="ws"]');
+  if (hero) hero.textContent = 'Optional. ' + (cfg.sendEstimateFile ? sent : kept);
+  if (ws) ws.textContent = 'PDF, photo or screenshot. ' + (cfg.sendEstimateFile ? 'It is sent only if you also send the form above.' : kept);
+
+  const states = document.querySelector('[data-cfg-states]');
+  if (states) {
+    const names = cfg.licensedStates.map(([, n]) => n);
+    states.textContent = names.length > 1 ? names.slice(0, -1).join(', ') + ' and ' + names.at(-1) : names.join('');
+  }
 }
 
 /* ---------- program chips: "Not sure yet" is exclusive ---------- */
@@ -83,6 +97,9 @@ function bindState() {
     const waitlist = st.value === OTHER_STATE;
     $('waitlist').hidden = !waitlist;
     $('upwrap').hidden = waitlist;
+    // No calls or texts to residents of states where Barakah is not licensed.
+    $('c2-label').hidden = waitlist;
+    if (waitlist) $('c2').checked = false;
     if (st.value) setFieldError('state', '');
   });
 }
@@ -189,11 +206,13 @@ async function onSubmit(e) {
     const res = await fetch(cfg.leadEndpoint, { method: 'POST', body, credentials: 'same-origin' });
     const json = await res.json().catch(() => ({}));
     if (!res.ok || json.ok !== true) throw new Error('rejected');
-    status('Thank you. An advisor will contact you.', 'ok');
+    const keptEstimate = !file && getFile() && !clean.waitlist;
+    status('Thank you. An advisor will contact you.' + (keptEstimate ? ' Please have your Loan Estimate ready for the call.' : ''), 'ok');
     $('lead').reset();
     clearFile();
     $('waitlist').hidden = true;
     $('upwrap').hidden = false;
+    $('c2-label').hidden = false;
   } catch {
     status('We could not send your request. Please call', 'bad', true);
   } finally {

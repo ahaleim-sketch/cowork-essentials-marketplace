@@ -8,9 +8,7 @@
 <!-- TODO(launch): remove noindex only after Everett / Supreme Lending Compliance approves the page. -->
 <meta name="robots" content="noindex, nofollow">
 <meta name="color-scheme" content="light dark">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=Public+Sans:wght@400;600;700;800&display=swap">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="styles.css">
 <link rel="preload" as="image" href="img/hero.webp" type="image/webp">
 <script src="config.js"></script>
@@ -72,19 +70,20 @@
 <div class="f"><label for="lg">Language</label><select id="lg" name="language"><option>English</option><option>Arabic</option><option>Urdu</option><option>Other</option></select></div>
 
 <div id="upwrap">
-  <label class="drop" for="up1" id="d1"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 3h11l6 6v20H8z"/><path d="M19 3v6h6M16 14v9M12.5 17.5 16 14l3.5 3.5"/></svg><div><b>Attach your Loan Estimate</b><span>Optional</span></div><input type="file" id="up1" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif,application/pdf,image/jpeg,image/png,image/heic,image/heif" aria-describedby="up1-err"></label>
+  <label class="drop" for="up1" id="d1"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 3h11l6 6v20H8z"/><path d="M19 3v6h6M16 14v9M12.5 17.5 16 14l3.5 3.5"/></svg><div><b>Attach your Loan Estimate</b><span data-upload-note="hero">Optional</span></div><input type="file" id="up1" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif,application/pdf,image/jpeg,image/png,image/heic,image/heif" aria-describedby="up1-err"></label>
   <div class="filerow" data-file-row hidden><span class="file" data-file-name></span><button type="button" class="rm" data-file-remove>Remove<span class="sr-only"> attached file</span></button></div>
   <p class="err" id="up1-err"></p>
 </div>
-<p class="noest">No estimate yet? <a href="#start" id="noest">Let us show you what you qualify for.</a></p>
+<p class="noest">No estimate yet? <a href="#start" id="noest">Let us show you what you may qualify for.</a></p>
 
 <!-- Honeypot: hidden from people and assistive tech. Bots tend to fill it. -->
 <div class="hp" aria-hidden="true"><label for="website">Website</label><input type="text" id="website" name="website" tabindex="-1" autocomplete="off"></div>
 
 <div class="cons">
 <label><input type="checkbox" id="c1" name="consentEmail"><i></i><span id="c1-text">I agree to receive marketing emails about home financing from Everett Financial, Inc. D/B/A Supreme Lending (NMLS #2129). I can unsubscribe at any time. Consent is not required to obtain any product or service.</span></label>
-<label><input type="checkbox" id="c2" name="consentCalls"><i></i><span id="c2-text">I agree that Everett Financial, Inc. D/B/A Supreme Lending (NMLS #2129) and its mortgage advisors may call and text me at the number I provided, including using an automatic telephone dialing system or prerecorded or artificial voice messages, about home financing. Message frequency varies. Message and data rates may apply. Reply STOP to opt out, HELP for help. Consent is not a condition of any purchase or of obtaining any product or service.</span></label>
+<label id="c2-label"><input type="checkbox" id="c2" name="consentCalls"><i></i><span id="c2-text">I agree that Everett Financial, Inc. D/B/A Supreme Lending (NMLS #2129) and its mortgage advisors may call and text me at the number I provided, including using an automatic telephone dialing system or prerecorded or artificial voice messages, about home financing. Message frequency varies. Message and data rates may apply. Reply STOP to opt out, HELP for help. Consent is not a condition of any purchase or of obtaining any product or service.</span></label>
 </div>
+<p class="fine legal"><a href="privacy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms of Use and SMS Terms</a></p>
 <button class="cta" type="submit" id="go">Talk to an advisor</button>
 <p class="msg" id="msg" role="status" aria-live="polite"></p>
 </form>
@@ -122,7 +121,7 @@
 <p style="color:var(--mute);margin-top:10px;max-width:30em">Costs and qualification depend on your file and the program. Put the numbers from your current estimate here, then ask an advisor to show you the same file as riba-free financing. Judge the difference on the paper in front of you.</p></div>
 <div class="fo"><h3>Your estimate, in percentages</h3>
 <div id="gate"><p class="fine" style="margin:8px 0 14px">Upload your Loan Estimate to open the worksheet. The fields stay empty until a document is added.</p>
-<label class="drop" for="up2" id="d2"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 3h11l6 6v20H8z"/><path d="M19 3v6h6M16 14v9M12.5 17.5 16 14l3.5 3.5"/></svg><div><b>Upload your Loan Estimate</b><span>PDF, photo or screenshot</span></div><input type="file" id="up2" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif,application/pdf,image/jpeg,image/png,image/heic,image/heif" aria-describedby="up2-err"></label>
+<label class="drop" for="up2" id="d2"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 3h11l6 6v20H8z"/><path d="M19 3v6h6M16 14v9M12.5 17.5 16 14l3.5 3.5"/></svg><div><b>Upload your Loan Estimate</b><span data-upload-note="ws">PDF, photo or screenshot</span></div><input type="file" id="up2" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif,application/pdf,image/jpeg,image/png,image/heic,image/heif" aria-describedby="up2-err"></label>
 <p class="err" id="up2-err"></p></div>
 <div id="wsb" hidden>
 <div class="filerow" data-file-row style="margin:6px 0 12px"><span class="file" data-file-name></span><button type="button" class="rm" data-file-remove>Remove<span class="sr-only"> attached file</span></button></div>
@@ -144,7 +143,7 @@
 <div style="margin-top:14px">
 <details><summary>Is Barakah only for Muslims?</summary><p>No. Barakah is open to all qualified applicants regardless of religion or national origin.</p></details>
 <details><summary>Does a review of my estimate cost anything?</summary><p>No. It is free and carries no obligation.</p></details>
-<details><summary>Is financing available in my state?</summary><p>Barakah serves many states. Your advisor will confirm yours when you reach out.</p></details>
+<details><summary>Is financing available in my state?</summary><p>Barakah is currently offered in <span data-cfg-states>these states</span>. Your advisor will confirm the details when you reach out.</p></details>
 <details><summary>What Shariah review supports Murabaha?</summary><p>Read the signed Murabaha reviews and the scholars' backgrounds on the Barakah site, then bring your questions to an advisor.</p></details>
 </div>
 <div class="band"><h2>Prefer to talk first?</h2><p style="margin-top:10px;opacity:.9">Call, email or pick a time. An advisor answers directly.</p>
@@ -154,7 +153,7 @@
 </main>
 
 <footer><div class="w">
-<p>Everett Financial, Inc. D/B/A Supreme Lending, NMLS #2129. Mortgage advisor NMLS #2753124. Equal Housing Lender. For licensing information visit <a href="https://www.nmlsconsumeraccess.org" rel="noopener">nmlsconsumeraccess.org</a>. <span data-cfg="websiteDisplay"></span><span data-cfg-address hidden></span></p>
+<p>Everett Financial, Inc. D/B/A Supreme Lending, NMLS #2129. Mortgage advisor NMLS #2753124. Equal Housing Lender. For licensing information visit <a href="https://www.nmlsconsumeraccess.org/EntityDetails.aspx/COMPANY/2129" rel="noopener">nmlsconsumeraccess.org</a>. <span data-cfg="websiteDisplay"></span><span data-cfg-address hidden></span> <a href="privacy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms of Use</a></p>
 <p>The Murabaha product option entails qualified buyers entering into a Temporary Agency agreement with the financier. The buyer makes monthly payments of cost plus profit on an installment loan, but does not pay interest. The custom documentation used includes an Installment Credit Sale Contract and Security Instrument. The transaction will still require all other state and federally required documents. Applicant is subject to credit and underwriting approval. Restrictions apply. The arithmetic tool above is not a quote, offer or commitment.</p>
 </div></footer>
 

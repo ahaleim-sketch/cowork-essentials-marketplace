@@ -64,6 +64,8 @@ window.BARAKAH_CONFIG = Object.freeze({
   // and the privacy text. While false, the worksheet still works (the file
   // is never read) and the lead is sent without the file.
   sendEstimateFile: false,
+  // Must match the Worker's ESTIMATE_RETENTION_DAYS and the R2 lifecycle rule.
+  estimateRetentionDays: 30,
 
   // Upload rules (client-side check only; the server must re-check).
   upload: {
