@@ -1,12 +1,8 @@
-# Copy to .dev.vars for `wrangler dev` and `npm run ghl:check`. Never commit .dev.vars.
-GHL_TOKEN=pit-xxxxxxxxxxxxxxxxxxxxxxxx
-GHL_LOCATION_ID=
-GHL_PIPELINE_ID=
-GHL_STAGE_ID=
+# Copy to .dev.vars for `wrangler dev` and `npm run leads -- link`. Never commit .dev.vars.
 ESTIMATE_LINK_SECRET=generate-with-openssl-rand-base64-32
-GHL_CF_LANGUAGE=
-GHL_CF_CONSENT_EMAIL=
-GHL_CF_CONSENT_CALLS=
-GHL_CF_ATTRIBUTION=
+# Public https origin of the deployed site, used to build Loan Estimate links.
+SITE_ORIGIN=https://TODO-confirm-subdomain.example
 ALLOWED_ORIGINS=http://localhost:8787
+ALERT_FROM=leads@your-domain.example
+ALERT_TO=advisor@your-domain.example
 UPLOADS_ENABLED=false

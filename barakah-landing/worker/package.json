@@ -7,8 +7,9 @@
     "deploy": "wrangler deploy",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "ghl:check": "node scripts/ghl-setup.mjs",
-    "ghl:create-fields": "node scripts/ghl-setup.mjs --create"
+    "db:migrate": "wrangler d1 migrations apply barakah-leads --remote",
+    "db:migrate:local": "wrangler d1 migrations apply barakah-leads --local",
+    "leads": "node scripts/leads.mjs"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "4.20250924.0",

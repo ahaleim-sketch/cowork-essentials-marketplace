@@ -1,24 +1,15 @@
-// POST /api/lead          -> validate, store optional Loan Estimate in private R2, write to GoHighLevel
+// POST /api/lead          -> validate, store optional Loan Estimate in private R2, save lead + consent in D1, email the advisor
 // GET  /api/estimate/:key -> serve a stored Loan Estimate to someone holding a valid, unexpired signed link
 // Everything else          -> static site (Workers static assets)
-import type { Env } from './env';
-import { parseRequest, BadRequest, type Lead } from './validate';
-import { Ghl, GhlError } from './ghl';
+import type { Env, SendEmail } from './env';
+import { parseRequest, BadRequest } from './validate';
 import { signLink, verifyLink } from './links';
-import { CONSENT_VERSION } from './consent';
+import { saveLead, markAlertSent } from './store';
+import { buildAlert } from './alert';
 
-const PROGRAM_TAG: Record<string, string> = {
-  murabaha: 'program:murabaha',
-  musharakah: 'program:musharakah',
-  ijara: 'program:ijara',
-  'not-sure': 'program:not-sure'
-};
-const PROGRAM_NAME: Record<string, string> = {
-  murabaha: 'Cost plus Profit (Murabaha)',
-  musharakah: 'Diminishing Partnership (Musharakah)',
-  ijara: 'Home Earned Equity (Ijara)',
-  'not-sure': 'Not sure yet'
-};
+export interface Deps {
+  sendEmail?: SendEmail;
+}
 
 const json = (body: unknown, status = 200, extra: HeadersInit = {}) =>
   new Response(JSON.stringify(body), {
@@ -31,35 +22,13 @@ function log(event: string, data: Record<string, string | number | boolean> = {}
   console.log(JSON.stringify({ event, ...data }));
 }
 
-export function buildTags(lead: Lead, hasEstimate: boolean): string[] {
-  const tags = ['barakah-lp', `goal:${lead.goal}`, ...lead.programs.map((p) => PROGRAM_TAG[p]), `has-estimate:${hasEstimate ? 'yes' : 'no'}`];
-  if (!hasEstimate) tags.push('needs-qualification-review');
-  if (lead.waitlist) tags.push('state:other-waitlist');
-  if (lead.consent.email.granted) tags.push('consent:email');
-  if (lead.consent.callsTexts.granted) tags.push('consent:calls-texts');
-  return tags;
-}
-
-export function consentField(rec: Lead['consent']['email'], ctx: { at: string; ip: string; ua: string; pageUrl: string }) {
-  return JSON.stringify({
-    granted: rec.granted,
-    timestamp: ctx.at,
-    pageUrl: ctx.pageUrl,
-    ip: ctx.ip,
-    userAgent: ctx.ua,
-    consentVersion: CONSENT_VERSION,
-    textShown: rec.textShown,
-    textMatchesServer: rec.textMatchesServer
-  });
-}
-
 function originAllowed(req: Request, env: Env) {
   const origin = req.headers.get('origin');
   const allowed = (env.ALLOWED_ORIGINS || '').split(',').map((s) => s.trim()).filter(Boolean);
   return Boolean(origin && allowed.includes(origin));
 }
 
-async function handleLead(req: Request, env: Env, fetchImpl: typeof fetch): Promise<Response> {
+async function handleLead(req: Request, env: Env, deps: Deps): Promise<Response> {
   if (!originAllowed(req, env)) return json({ ok: false, error: 'forbidden' }, 403);
 
   const ip = req.headers.get('cf-connecting-ip') || '';
@@ -87,7 +56,7 @@ async function handleLead(req: Request, env: Env, fetchImpl: typeof fetch): Prom
   }
   const lead = parsed.lead!;
   const at = new Date().toISOString();
-  const ghl = new Ghl(env.GHL_TOKEN, fetchImpl);
+  const id = crypto.randomUUID();
 
   // 1. Store the Loan Estimate privately (R2 encrypts at rest). Random key, no PII in it.
   let objectKey: string | null = null;
@@ -99,95 +68,34 @@ async function handleLead(req: Request, env: Env, fetchImpl: typeof fetch): Prom
     });
   }
 
-  // 2. Upsert the contact.
-  const ctx = { at, ip, ua: (req.headers.get('user-agent') || '').slice(0, 300), pageUrl: lead.pageUrl };
-  const dndSettings: Record<string, { status: 'inactive'; message: string }> = {};
-  const permitted = `Consent given on Barakah landing page ${at}`;
-  if (lead.consent.email.granted) dndSettings.email = { status: 'inactive', message: permitted };
-  if (lead.consent.callsTexts.granted && lead.phone) {
-    dndSettings.call = { status: 'inactive', message: permitted };
-    dndSettings.sms = { status: 'inactive', message: permitted };
-  }
-
-  let contactId: string;
+  // 2. Save the lead and both consent records. This is the record of truth.
   try {
-    const up = await ghl.upsertContact({
-      locationId: env.GHL_LOCATION_ID,
-      firstName: lead.firstName,
-      lastName: lead.lastName || undefined,
-      name: [lead.firstName, lead.lastName].filter(Boolean).join(' '),
-      ...(lead.email ? { email: lead.email } : {}),
-      ...(lead.phone ? { phone: lead.phone } : {}),
-      ...(lead.waitlist ? {} : { state: lead.state }),
-      country: 'US',
-      source: 'Barakah landing page',
-      ...(Object.keys(dndSettings).length ? { dndSettings } : {}),
-      customFields: [
-        { id: env.GHL_CF_LANGUAGE, field_value: lead.language },
-        { id: env.GHL_CF_CONSENT_EMAIL, field_value: consentField(lead.consent.email, ctx) },
-        { id: env.GHL_CF_CONSENT_CALLS, field_value: consentField(lead.consent.callsTexts, ctx) },
-        { id: env.GHL_CF_ATTRIBUTION, field_value: JSON.stringify({ pageUrl: lead.pageUrl, ...lead.utm }) }
-      ]
-    });
-    contactId = up.contact?.id || '';
-    if (!contactId) throw new GhlError('upsert', 502);
-  } catch (e) {
-    // Nothing usable was created: do not keep an orphaned document.
+    await saveLead(env.DB, id, lead, objectKey, { at, ip, ua: (req.headers.get('user-agent') || '').slice(0, 300) });
+  } catch {
     if (objectKey) await env.ESTIMATES.delete(objectKey).catch(() => {});
-    log('lead_failed', { step: e instanceof GhlError ? e.step : 'upsert', status: e instanceof GhlError ? e.status : 0 });
+    log('lead_failed', { step: 'db' });
     return json({ ok: false, error: 'server' }, 502);
   }
 
-  // 3. Tags, opportunity and note. The contact exists now, so a failure here is logged, not returned.
-  const followUps: Array<[string, () => Promise<unknown>]> = [
-    ['tags', () => ghl.addTags(contactId, buildTags(lead, Boolean(objectKey) || lead.estimateAttachedNotSent))]
-  ];
-  if (!lead.waitlist) {
-    followUps.push([
-      'opportunity',
-      () =>
-        ghl.createOpportunity({
-          locationId: env.GHL_LOCATION_ID,
-          pipelineId: env.GHL_PIPELINE_ID,
-          pipelineStageId: env.GHL_STAGE_ID,
-          contactId,
-          name: `Barakah LP: ${[lead.firstName, lead.lastName].filter(Boolean).join(' ')} (${lead.goal === 'buy' ? 'Buy' : 'Refinance'})`,
-          status: 'open',
-          source: 'Barakah landing page'
-        })
-    ]);
-  }
-  const ttlH = Number(env.ESTIMATE_LINK_TTL_HOURS || 72);
-  const link = objectKey
-    ? await signLink(new URL(req.url).origin, objectKey, Math.floor(Date.now() / 1000) + ttlH * 3600, env.ESTIMATE_LINK_SECRET)
+  // 3. Email the advisor. The lead is already saved, so a failure here is logged
+  //    (alert_sent stays 0 and `npm run leads -- unsent` lists it), not returned.
+  const ttlHours = Number(env.ESTIMATE_LINK_TTL_HOURS || 72);
+  const estimate = objectKey
+    ? {
+        link: await signLink(new URL(req.url).origin, objectKey, Math.floor(Date.now() / 1000) + ttlHours * 3600, env.ESTIMATE_LINK_SECRET),
+        ttlHours
+      }
     : null;
-  const note = [
-    'Barakah landing page request',
-    `Goal: ${lead.goal === 'buy' ? 'Buy a home' : 'Refinance'}`,
-    `Programs: ${lead.programs.map((p) => PROGRAM_NAME[p]).join(', ')}`,
-    `State: ${lead.waitlist ? 'Other (waitlist, not licensed)' : lead.state}`,
-    `Language: ${lead.language}`,
-    `Marketing email consent: ${lead.consent.email.granted ? 'yes' : 'no'}`,
-    `Calls/texts consent: ${lead.consent.callsTexts.granted ? 'yes' : 'no'}`,
-    link
-      ? `Loan Estimate (private link, expires in ${ttlH} hours): ${link}`
-      : lead.estimateAttachedNotSent
-        ? 'Has a Loan Estimate (attached on the page, not uploaded while uploads are off). Ask them to bring it to the call.'
-        : lead.noEstimateClicked
-        ? 'No Loan Estimate. Clicked "No estimate yet?"'
-        : 'No Loan Estimate attached.'
-  ].join('\n');
-  followUps.push(['note', () => ghl.addNote(contactId, note)]);
-
-  for (const [step, fn] of followUps) {
-    try {
-      await fn();
-    } catch (e) {
-      log('lead_partial', { step, status: e instanceof GhlError ? e.status : 0 });
-    }
+  try {
+    if (!deps.sendEmail) throw new Error('no email binding');
+    const { subject, text } = buildAlert(id, lead, at, estimate);
+    await deps.sendEmail({ from: env.ALERT_FROM, to: env.ALERT_TO, subject, text });
+    await markAlertSent(env.DB, id);
+  } catch {
+    log('alert_failed', { lead: id });
   }
 
-  log('lead_ok', { hasEstimate: Boolean(objectKey), waitlist: lead.waitlist });
+  log('lead_ok', { lead: id, hasEstimate: Boolean(objectKey), waitlist: lead.waitlist });
   return json({ ok: true });
 }
 
@@ -215,12 +123,12 @@ async function handleEstimate(req: Request, env: Env, objectKey: string): Promis
   });
 }
 
-export async function handle(req: Request, env: Env, fetchImpl: typeof fetch = fetch): Promise<Response> {
+export async function handle(req: Request, env: Env, deps: Deps = {}): Promise<Response> {
   const url = new URL(req.url);
   try {
     if (url.pathname === '/api/lead') {
       if (req.method !== 'POST') return json({ ok: false, error: 'method' }, 405, { allow: 'POST' });
-      return await handleLead(req, env, fetchImpl);
+      return await handleLead(req, env, deps);
     }
     const m = url.pathname.match(/^\/api\/estimate\/(.+)$/);
     if (m) {
@@ -234,7 +142,3 @@ export async function handle(req: Request, env: Env, fetchImpl: typeof fetch = f
     return json({ ok: false, error: 'server' }, 500);
   }
 }
-
-export default {
-  fetch: (req: Request, env: Env) => handle(req, env)
-} satisfies ExportedHandler<Env>;

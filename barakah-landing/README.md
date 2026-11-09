@@ -39,7 +39,7 @@ npm run screenshots -- ./screenshots
 
 ## Deploy
 
-`worker/` is a Cloudflare Worker that serves this static site **and** `POST /api/lead` (GoHighLevel + private Loan Estimate storage). See `worker/README.md` for setup, secrets and launch switches.
+`worker/` is a Cloudflare Worker that serves this static site **and** `POST /api/lead` (leads in Cloudflare D1, an email alert to the advisor, private Loan Estimate storage). See `worker/README.md` for setup, secrets and launch switches.
 Turn on `formLive`, and remove `noindex` from `index.html` and `_headers`, only after Compliance signs off.
 
 ## Submit contract (what the Worker must accept)

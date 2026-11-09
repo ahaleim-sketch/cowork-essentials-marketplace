@@ -1,37 +1,42 @@
 # Barakah lead endpoint (Cloudflare Worker)
 
-One Worker serves the static page (`../public`) and two routes:
+One Worker serves the static page (`../public`) and two routes. Leads stay in your Cloudflare account: no CRM and no third party.
 
 | Route | What it does |
 |---|---|
-| `POST /api/lead` | Re-validates the form, optionally stores the Loan Estimate in private R2, upserts the GHL contact, adds tags, creates the opportunity, adds a note. Returns `{ok:true}` or `{ok:false,error:<code>}`. |
+| `POST /api/lead` | Re-validates the form, optionally stores the Loan Estimate in private R2, saves the lead and both consent records to D1, then emails the advisor. Returns `{ok:true}` or `{ok:false,error:<code>}`. |
 | `GET /api/estimate/<key>?exp&sig` | Serves a stored Loan Estimate only with a valid HMAC signature before `exp`, and only while the file is within the retention period. Everything else gets 404. |
 
-## What gets written to GoHighLevel
-- **Contact (upsert, matched by the location's duplicate rule):** first and last name, E.164 phone, email, state, country US, source "Barakah landing page".
-- **Tags (added, existing tags are kept):** `barakah-lp`, `goal:buy|refi`, `program:<murabaha|musharakah|ijara|not-sure>`, `has-estimate:yes|no`, `needs-qualification-review` (no estimate), `state:other-waitlist`, `consent:email`, `consent:calls-texts`.
-- **Custom fields:** language; one consent record per box (granted, ISO timestamp, page URL, IP, user agent, consent version, exact text shown, whether it matches the server copy); attribution (page URL + UTM).
-- **DND (do not disturb):** lifted only for the channels the person checked (email, or call + SMS). An unchecked box never grants anything, and the endpoint never clears an existing opt-in.
-  **Workflows must gate automated email/SMS/calls on the `consent:*` tags.**
-- **Opportunity** in `GHL_PIPELINE_ID` / `GHL_STAGE_ID`. It is skipped for "Other state" waitlist leads.
-- **Note** with the request summary and, if a file was uploaded, a signed link that expires (72 h by default). The file itself never goes to GHL or any other third party.
+## Where a lead goes
+1. **D1 `leads`**: name, E.164 phone, email, state, language, goal, programs, estimate flags, page URL, UTM, `status` (starts `new`), `alert_sent`.
+2. **D1 `consents`**: one row per box, checked or not, with granted, timestamp, page URL, IP, user agent, consent version, the exact text shown, and whether it matches the server copy. This is your TCPA/CAN-SPAM evidence: keep it as long as Compliance says, at least 4 years.
+   The lead and its consents are written in one batch, so either all rows are saved or none are.
+3. **Email to `ALERT_TO`** through Cloudflare Email Routing. The subject has no personal data (it shows in lock-screen previews). The body has the contact details, the consent answers (with "Do not add this person to automated calls or texts" when that box was not checked), and, if a file was uploaded, a signed link that expires (72 h by default). The file itself is never emailed.
 
-If the contact upsert fails, the uploaded file is deleted and the page shows the call-us message. If tags, the opportunity or the note fail after the contact exists, the lead still counts as received and `lead_partial` is logged.
+If saving to D1 fails, the uploaded file is deleted and the page shows the call-us message. If the email fails, the lead is still saved, `alert_sent` stays 0, and `npm run leads -- unsent` lists it.
+
+## Working with leads
+```bash
+npm run leads -- list 7              # last 7 days
+npm run leads -- unsent              # leads whose email alert failed
+npm run leads -- link <leadId>       # fresh 24 h Loan Estimate link (needs ESTIMATE_LINK_SECRET + SITE_ORIGIN in .dev.vars)
+npm run leads -- mark <leadId> contacted
+npm run leads -- export leads.csv    # every lead with both consent records (personal data: store securely)
+```
+Add `--local` to read the `wrangler dev` database instead of production.
 
 ## Setup
+Prerequisite: the sending domain uses Cloudflare DNS with **Email Routing** turned on, and the advisor inbox (`ALERT_TO`) is added and verified as a destination address.
 ```bash
 npm install
-cp .dev.vars.example .dev.vars        # fill in GHL_TOKEN (private integration token) and GHL_LOCATION_ID
-npm run ghl:check                     # read-only: confirms token + location, lists pipelines/stages and custom-field IDs
-npm run ghl:create-fields             # only if fields are missing; prints the IDs it created
+npx wrangler d1 create barakah-leads          # paste the database_id into wrangler.toml
+npm run db:migrate
 npx wrangler r2 bucket create barakah-loan-estimates
 npx wrangler r2 bucket lifecycle add barakah-loan-estimates le-expire le/ --expire-days 30
-for s in GHL_TOKEN GHL_LOCATION_ID GHL_PIPELINE_ID GHL_STAGE_ID ESTIMATE_LINK_SECRET \
-         GHL_CF_LANGUAGE GHL_CF_CONSENT_EMAIL GHL_CF_CONSENT_CALLS GHL_CF_ATTRIBUTION; do npx wrangler secret put $s; done
-# set ALLOWED_ORIGINS in wrangler.toml to the final https origin, then:
+openssl rand -base64 32 | npx wrangler secret put ESTIMATE_LINK_SECRET   # also put it in your local .dev.vars for `leads link`
+# set ALLOWED_ORIGINS, ALERT_FROM, ALERT_TO in wrangler.toml, then:
 npm run deploy
 ```
-The private integration token needs these scopes: contacts.write/readonly, opportunities.write/readonly, locations.readonly, locations/customFields.write/readonly.
 
 ## Launch switches (all off now)
 | Switch | Where | Turn on when |
@@ -41,6 +46,6 @@ The private integration token needs these scopes: contacts.write/readonly, oppor
 | remove `noindex` | `public/index.html`, `public/_headers` | Launch |
 
 ## Tests
-`npm test` runs 22 integration tests against a fake GHL and an in-memory R2 bucket. Any real network call fails the test.
-The tests cover: the upsert, tag, opportunity and note payloads; that consent evidence is recorded; DND changes per box; rejection of unknown fields and parts; server-side re-validation; origin checks; rate limiting; the honeypot; the upload switch; real file-type checks; the 10 MB limit; the signed-link checks (tampered, unsigned, expired, past retention); the waitlist; GHL failure handling; and that the page's consent text matches the server copy.
+`npm test` runs 24 tests. They use the real migration on SQLite, a fake email sender and an in-memory R2 bucket, and any network call fails the test.
+They cover: what is saved to D1 (lead plus consent evidence); that a lead and its consents are written together or not at all; what is in the alert (and kept out of the subject and headers); email failure; database failure (cleanup); rejection of unknown fields and parts; server-side re-validation; SQL-looking input; origin checks; rate limiting; the honeypot; the upload switch; real file-type checks; the 10 MB limit; the signed-link checks (tampered, unsigned, expired, past retention); that CLI re-signed links are accepted; the waitlist; and that the page's consent text matches the server copy.
 `npm run typecheck` runs TypeScript.

@@ -1,5 +1,6 @@
 import { vi } from 'vitest';
 import type { Env } from '../src/env';
+import { makeD1 } from './d1';
 
 export const ORIGIN = 'https://lp.example.test';
 
@@ -19,40 +20,31 @@ export function makeBucket() {
   return bucket;
 }
 
-export function makeEnv(over: Partial<Env> = {}) {
+export function makeEnv(over: Partial<Env> = {}, dbOpts: { failBatch?: boolean } = {}) {
   const bucket = makeBucket();
+  const db = makeD1(dbOpts);
   const env = {
-    GHL_TOKEN: 'test-token',
-    GHL_LOCATION_ID: 'loc1',
-    GHL_PIPELINE_ID: 'pipe1',
-    GHL_STAGE_ID: 'stage1',
     ESTIMATE_LINK_SECRET: 'unit-test-secret',
-    GHL_CF_LANGUAGE: 'cf_lang',
-    GHL_CF_CONSENT_EMAIL: 'cf_ce',
-    GHL_CF_CONSENT_CALLS: 'cf_cc',
-    GHL_CF_ATTRIBUTION: 'cf_attr',
     ALLOWED_ORIGINS: ORIGIN,
+    ALERT_FROM: 'leads@lp.example.test',
+    ALERT_TO: 'advisor@lp.example.test',
     UPLOADS_ENABLED: 'true',
+    DB: db as unknown as D1Database,
     ESTIMATES: bucket as unknown as R2Bucket,
     LEAD_LIMITER: { limit: vi.fn(async () => ({ success: true })) },
     ...over
   } as Env;
-  return { env, bucket };
+  return { env, bucket, db };
 }
 
-/** Fake GoHighLevel. Records every call; never touches the network. */
-export function fakeGhl(fail: Partial<Record<'upsert' | 'tags' | 'opportunity' | 'note', number>> = {}) {
-  const calls: Array<{ step: string; method: string; path: string; headers: Record<string, string>; body: any }> = [];
-  const fetchImpl = vi.fn(async (url: string, init: RequestInit) => {
-    const path = new URL(url).pathname;
-    const step = path === '/contacts/upsert' ? 'upsert' : path.endsWith('/tags') ? 'tags' : path.startsWith('/opportunities') ? 'opportunity' : path.endsWith('/notes') ? 'note' : 'other';
-    calls.push({ step, method: String(init.method), path, headers: init.headers as Record<string, string>, body: init.body ? JSON.parse(String(init.body)) : null });
-    const status = fail[step as keyof typeof fail];
-    if (status) return new Response('{"message":"boom internal detail"}', { status });
-    if (step === 'upsert') return Response.json({ new: true, contact: { id: 'contact123' } });
-    return Response.json({ ok: true });
+/** Fake email sender. Records messages; can be told to fail. */
+export function fakeMail(fail = false) {
+  const sent: Array<{ from: string; to: string; subject: string; text: string }> = [];
+  const sendEmail = vi.fn(async (m: (typeof sent)[number]) => {
+    if (fail) throw new Error('email routing error');
+    sent.push(m);
   });
-  return { fetchImpl: fetchImpl as unknown as typeof fetch, calls };
+  return { sent, sendEmail };
 }
 
 export const CONSENT_EMAIL_TEXT =
